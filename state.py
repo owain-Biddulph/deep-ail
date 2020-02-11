@@ -9,7 +9,7 @@ class State:
     def __init__(self, set_message: Tuple[str, Tuple[int, int]]) -> None:
         self._nb_rows: int = set_message[1][0]
         self._nb_columns: int = set_message[1][0]
-        self._board: np.array = np.array(self.nb_rows, self.nb_columns, 2)
+        self._board: np.ndarray = np.zeros((self.nb_rows, self.nb_columns, 2), dtype=int)
         self._house_list: List[Tuple[int, int]] = []
         self._starting_square = None
 
@@ -22,7 +22,7 @@ class State:
         return self._nb_columns
 
     @property
-    def board(self) -> np.array:
+    def board(self) -> np.ndarray:
         return self._board
 
     def update(self, message) -> None:
@@ -32,6 +32,10 @@ class State:
             self._starting_square = message[1]
         elif message[0] == "map" or "upd":
             for change in message[1]:
-                species = np.nonzero(change[2:])[0][0]
+                try:
+                    species: int = np.nonzero(change[2:])[0][0] + 1
+                    self._board[change[0], change[1], 1] = change[1 + species]
+                except IndexError:
+                    species: int = 0
+                    self._board[change[0], change[1], 1] = 0
                 self._board[change[0], change[1], 0] = species
-                self._board[change[0], change[1], 1] = change[2 + species]
