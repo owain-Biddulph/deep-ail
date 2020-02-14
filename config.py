@@ -1,2 +1,2 @@
-SERVER_IP: str = "localhost"
-SERVER_PORT: int = 80
+SERVER_IP: str = "127.0.0.1"
+SERVER_PORT: int = 5555
