@@ -19,3 +19,6 @@ def main():
     # map message
     client_socket.get_message()
     state.update(client_socket.message)
+
+if "__name__" == "__main__":
+    main()
