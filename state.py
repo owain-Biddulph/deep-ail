@@ -28,8 +28,10 @@ class State:
     def update(self, message) -> None:
         if message[0] == "hum":
             self._house_list = message[1]
+            print(f"set house list to: {self._house_list}")
         elif message[0] == "hme":
             self._starting_square = message[1]
+            print(f"set starting square to: {self._starting_square}")
         elif message[0] == "map" or "upd":
             for change in message[1]:
                 try:
@@ -39,3 +41,4 @@ class State:
                     species: int = 0
                     self._board[change[0], change[1], 1] = 0
                 self._board[change[0], change[1], 0] = species
+        print(self._board)
