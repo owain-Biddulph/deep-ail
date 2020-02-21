@@ -33,7 +33,6 @@ class State:
             self._starting_square = message[1]
         elif message[0] == "map" or "upd":
             for change in message[1]:
-                print(f"change {change}")
                 #il y a des humains
                 if change[2]!=0:
                     self._board[0, change[0], change[1]] = 1
@@ -53,7 +52,6 @@ class State:
                     if (change[0], change[1]) == (x, y):
                         self.our_species = 3
 
-            print(f"our species is {self.our_species}")
 
         elif message[0] == "upd":
             for change in message[1]:
@@ -76,5 +74,3 @@ class State:
                 else:
                     self._board[0, change[0], change[1]] = 0
                     self._board[1, change[0], change[1]] = 0
-
-        print(self._board)
