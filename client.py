@@ -47,16 +47,17 @@ class ClientSocket:
             data += self._socket.recv(3 - len(data))
         return data.decode()
 
-    def _get_message(self, length: int) -> str:
+    def _get_message(self, length: int) -> int:
         if not self._connected:
             print("trying to connect to server")
             self.connect_to_server(self._ip, self._port)
         data: bytes = bytes()
         while len(data) < length:
             data += self._socket.recv(1 - len(data))
-        return data
+        print(data)
+        return bytes_to_int(data)
 
-    def _parse_message(self) -> Tuple[str, Any]:
+    def _parse_message(self) -> list:
         command: str = self._get_command()
         print(f"received command: {command}")
         if command == "END":
@@ -67,41 +68,39 @@ class ClientSocket:
             raise ValueError("Command unknown")
 
         if command == "SET":
-            return ("set", (bytes_to_int(self._get_message(1)), bytes_to_int(self._get_message(1))))
+            return (["set", [self._get_message(1), self._get_message(1)]])
 
         if command == "HUM":
             humans = []
-            nb = bytes_to_int(self._get_message(1))
+            nb = self._get_message(1)
             print(nb)
-
             for i in range(nb):
                 print(humans)
-                humans += [bytes_to_int(self._get_message(1)), bytes_to_int(self._get_message(1))]
+                humans += [self._get_message(1), self._get_message(1)]
             print(humans)
-            return(["hum"]+humans)
-            #return "hum", [tuple(map(bytes_to_int, self._get_message(2))) for _ in range(bytes_to_int(self._get_message(1)))]
+            return ["hum"] + [humans]
 
         if command == "HME":
-            return "hme", (bytes_to_int(self._get_message(1)), bytes_to_int(self._get_message(1)))
+            return ["hme", [self._get_message(1), self._get_message(1)]]
 
         if command == "MAP":
             map = []
-            nb = bytes_to_int(self._get_message(1))
+            nb = self._get_message(1)
             print(nb)
             for i in range(nb):
                 print(map)
-                map += [[bytes_to_int(self._get_message(1)), bytes_to_int(self._get_message(1)), bytes_to_int(self._get_message(1)), bytes_to_int(self._get_message(1)), bytes_to_int(self._get_message(1))]]
+                map += [[self._get_message(1), self._get_message(1), self._get_message(1), self._get_message(1), self._get_message(1)]]
             print(map)
             return (["map"] + [map])
 
         if command == "UPD":
             upd = []
-            nb = bytes_to_int(self._get_message(1))
+            nb = self._get_message(1)
             print(nb)
 
             for i in range(nb):
                 print(upd)
-                upd += [[bytes_to_int(self._get_message(1)), bytes_to_int(self._get_message(1)), bytes_to_int(self._get_message(1)), bytes_to_int(self._get_message(1)), bytes_to_int(self._get_message(1))]]
+                upd += [[self._get_message(1), self._get_message(1), self._get_message(1), self._get_message(1), self._get_message(1)]]
             print(upd)
             return (["upd"] + [upd])
 
