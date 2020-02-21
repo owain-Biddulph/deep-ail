@@ -11,10 +11,8 @@ def respond(state:State):
         for y in range(state.nb_columns):
             species = state.board[0, x, y]
             if species == state.our_species:
-                print(f"species : {species}, our species : {state.our_species}")
                 nb_moves +=1
                 moves += [[x, y, state.board[1, x, y], x-1, y]]
-                print(f"playing move {moves}")
     return (nb_moves, moves)
 
 

@@ -12,7 +12,6 @@ def play_game(strategy):
     # set message
     client_socket.get_message()
     state = State(client_socket.message)
-    print(f"received rows: {state.nb_rows}, cols : {state.nb_columns}")
     # hum message
     client_socket.get_message()
     state.update(client_socket.message)
