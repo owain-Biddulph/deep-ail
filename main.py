@@ -11,8 +11,10 @@ from response import respond
 def strategiedebile(state):
     nb_moves = 0
     moves = []
-    for x in range(state.nb_rows):
-        for y in range(state.nb_columns):
+    for y in range(state.nb_rows):
+        for x in range(state.nb_columns):
+            # print(x, y, 'display')
+            state.display_board()
             species = state.board[0, x, y]
             if species == state.our_species:
                 print(f"species : {species}, our species : {state.our_species}")
