@@ -13,7 +13,7 @@ class State:
         self._board: np.ndarray = np.zeros((self.nb_columns, self.nb_rows, 2), dtype=int)
         self._house_list: List[Tuple[int, int]] = []
         self._starting_square = None
-        self.our_species = -1
+        self.our_species = None
 
     @property
     def nb_rows(self) -> int:
