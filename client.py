@@ -122,26 +122,3 @@ class ClientSocket:
                 message += bytes([data])
 
         self._socket.send("MOV".encode() + message)
-
-    def _send_command(self, command: str):
-        if not self._connected:
-            print("trying to connect to server")
-            self.connect_to_server(self._ip, self._port)
-        command = str(command)
-        if command == "nme":
-            command = "NME"
-        elif command == "mov":
-            command = "MOV"
-        else:
-            raise UnknownCommand(f"Command {command} unknown")
-        self._socket.send(command.encode())
-
-    def send_message(self, message: Tuple[str, Any]):
-        if not self._connected:
-            print("trying to connect to server")
-            self.connect_to_server(self._ip, self._port)
-        self._send_command(message[0])
-        if message[0] == "nme":
-            self._socket.send(bytes([len(message[1])]) + message[1].encode())
-        elif message[0] == "mov":
-            self._socket.send()
