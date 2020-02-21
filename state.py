@@ -37,7 +37,7 @@ class State:
             print(f"set starting square to: {self._starting_square}")
 
         elif message[0] == "map":
-            x, y = self._starting_square
+            x, y = self._starting_square[0], self._starting_square[1]
             for change in message[1]:
                 print(f"change {change}")
                 #il y a des humains
@@ -85,3 +85,8 @@ class State:
                     self._board[1, change[0], change[1]] = 0
 
         print(self._board)
+
+    def next_possible_states(self):
+        pass
+        #pour l'instant, pas de séparations
+
