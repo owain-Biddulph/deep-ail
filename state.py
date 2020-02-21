@@ -38,20 +38,20 @@ class State:
             for change in message[1]:
                 # il y a des humains
                 if change[2] != 0:
-                    self._board[0, change[0], change[1]] = 1
-                    self._board[1, change[0], change[1]] = change[2]
+                    self._board[change[0], change[1], 0] = 1
+                    self._board[change[0], change[1], 1] = change[2]
 
                 # il y a des vampires
                 if change[3] != 0:
-                    self._board[0, change[0], change[1]] = 2
-                    self._board[1, change[0], change[1]] = change[3]
+                    self._board[change[0], change[1], 0] = 2
+                    self._board[change[0], change[1], 1] = change[3]
                     if (change[0], change[1]) == (x, y):
                         self.our_species = 2
 
                 # il y a des loups garous
                 if change[4] != 0:
-                    self._board[0, change[0], change[1]] = 3
-                    self._board[1, change[0], change[1]] = change[4]
+                    self._board[change[0], change[1], 0] = 3
+                    self._board[change[0], change[1], 1] = change[4]
                     if (change[0], change[1]) == (x, y):
                         self.our_species = 3
 
@@ -59,23 +59,23 @@ class State:
             for change in message[1]:
                 # il y a des humains
                 if change[2] != 0:
-                    self._board[0, change[0], change[1]] = 1
-                    self._board[1, change[0], change[1]] = change[2]
+                    self._board[change[0], change[1]] = 1
+                    self._board[change[0], change[1]] = change[2]
 
                 # il y a des vampires
                 elif change[3] != 0:
-                    self._board[0, change[0], change[1]] = 2
-                    self._board[1, change[0], change[1]] = change[3]
+                    self._board[change[0], change[1], 0] = 2
+                    self._board[change[0], change[1], 1] = change[3]
 
                 # il y a des loups garous
                 elif change[4] != 0:
-                    self._board[0, change[0], change[1]] = 3
-                    self._board[1, change[0], change[1]] = change[4]
+                    self._board[change[0], change[1], 0] = 3
+                    self._board[change[0], change[1], 1] = change[4]
 
                 # il n'y a rien
                 else:
-                    self._board[0, change[0], change[1]] = 0
-                    self._board[1, change[0], change[1]] = 0
+                    self._board[change[0], change[1], 0] = 0
+                    self._board[change[0], change[1], 1] = 0
 
     def next_possible_states(self):
         pass
