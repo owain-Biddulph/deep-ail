@@ -9,8 +9,8 @@ def respond(state: State) -> Tuple[int, List]:
     moves = []
     for x in range(state.nb_rows):
         for y in range(state.nb_columns):
-            species = state.board[0, x, y]
+            species = state.board[x, y, 0]
             if species == state.our_species:
                 nb_moves +=1
-                moves += [[x, y, state.board[1, x, y], x-1, y]]
+                moves += [[x, y, state.board[x, y, 1], x-1, y]]
     return nb_moves, moves
