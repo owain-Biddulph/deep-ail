@@ -16,8 +16,6 @@ def simple_score(all_occupied_tile_us: List[List[int]], all_occupied_tile_other:
         for tile_2 in all_occupied_tile_other:
             distance_factor = 1 / distance(tile_1[0], tile_1[1], tile_2[0], tile_2[1])
             potential_score += distance_factor * get_proba_of_success(tile_1[2], tile_2[2])
-            distance_factor = 1 / distance(tile_1[0], tile_1[1], tile_2[0], tile_2[1])
-            potential_score += distance_factor * get_proba_of_success(tile_1[2], tile_2[2])
 
     score: float = ponderation[0] * current_state_score + ponderation[1] * potential_score
     return score
