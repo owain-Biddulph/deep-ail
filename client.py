@@ -1,6 +1,5 @@
 import socket
-from typing import Any, Tuple, List
-
+from typing import List
 import config
 
 
@@ -55,7 +54,8 @@ class ClientSocket:
             data += self._socket.recv(1 - len(data))
         return bytes_to_int(data)
 
-    def _parse_message(self) -> List[str, Any]:
+
+    def _parse_message(self) -> List:
         command: str = self._get_command()
         print(f"received command: {command}")
         if command == "END":
@@ -94,7 +94,8 @@ class ClientSocket:
                             self._get_message(1)])
             return ["upd", upd]
 
-    def get_message(self) -> List[str, Any]:
+
+    def get_message(self) -> List:
         try:
             self._message = self._parse_message()
             return self._message
