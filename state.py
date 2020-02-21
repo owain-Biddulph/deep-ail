@@ -29,57 +29,55 @@ class State:
     def update(self, message) -> None:
         if message[0] == "hum":
             self._house_list = message[1]
+
         elif message[0] == "hme":
             self._starting_square = message[1]
-
 
         elif message[0] == "map":
             x, y = self._starting_square[0], self._starting_square[1]
             for change in message[1]:
-                #il y a des humains
-                if change[2]!=0:
+                # il y a des humains
+                if change[2] != 0:
                     self._board[0, change[0], change[1]] = 1
                     self._board[1, change[0], change[1]] = change[2]
 
-                #il y a des vampires
-                if change[3]!=0:
+                # il y a des vampires
+                if change[3] != 0:
                     self._board[0, change[0], change[1]] = 2
                     self._board[1, change[0], change[1]] = change[3]
                     if (change[0], change[1]) == (x, y):
                         self.our_species = 2
 
-                #il y a des loups garous
-                if change[4]!=0:
+                # il y a des loups garous
+                if change[4] != 0:
                     self._board[0, change[0], change[1]] = 3
                     self._board[1, change[0], change[1]] = change[4]
                     if (change[0], change[1]) == (x, y):
                         self.our_species = 3
 
-
         elif message[0] == "upd":
             for change in message[1]:
                 # il y a des humains
-                if change[2]!=0:
+                if change[2] != 0:
                     self._board[0, change[0], change[1]] = 1
                     self._board[1, change[0], change[1]] = change[2]
 
-                #il y a des vampires
-                elif change[3]!=0:
+                # il y a des vampires
+                elif change[3] != 0:
                     self._board[0, change[0], change[1]] = 2
                     self._board[1, change[0], change[1]] = change[3]
 
-                #il y a des loups garous
-                elif change[4]!=0:
+                # il y a des loups garous
+                elif change[4] != 0:
                     self._board[0, change[0], change[1]] = 3
                     self._board[1, change[0], change[1]] = change[4]
 
-                #il n'y a rien
+                # il n'y a rien
                 else:
                     self._board[0, change[0], change[1]] = 0
                     self._board[1, change[0], change[1]] = 0
 
-
     def next_possible_states(self):
         pass
-        #pour l'instant, pas de séparations
+        # pour l'instant, pas de séparations
 
