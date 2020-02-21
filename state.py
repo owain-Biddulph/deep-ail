@@ -27,19 +27,15 @@ class State:
         return self._board
 
     def update(self, message) -> None:
-        print(f"in function update with message : {message}")
         if message[0] == "hum":
             self._house_list = message[1]
-            print(f"set house list to: {self._house_list}")
         elif message[0] == "hme":
             self._starting_square = message[1]
 
-            print(f"set starting square to: {self._starting_square}")
 
         elif message[0] == "map":
             x, y = self._starting_square[0], self._starting_square[1]
             for change in message[1]:
-                print(f"change {change}")
                 #il y a des humains
                 if change[2]!=0:
                     self._board[0, change[0], change[1]] = 1
@@ -59,7 +55,6 @@ class State:
                     if (change[0], change[1]) == (x, y):
                         self.our_species = 3
 
-            print(f"our species is {self.our_species}")
 
 
         elif message[0] == "upd":
@@ -84,7 +79,6 @@ class State:
                     self._board[0, change[0], change[1]] = 0
                     self._board[1, change[0], change[1]] = 0
 
-        print(self._board)
 
     def next_possible_states(self):
         pass
