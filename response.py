@@ -1,10 +1,10 @@
-from typing import Any, Tuple
+from typing import Tuple, List
 
 from state import State
 
 
-def respond(state:State):
-    #pour l'instant, on va juste toujours à gauche
+def respond(state: State) -> Tuple[int, List]:
+    # Basic test, always moves left
     nb_moves = 0
     moves = []
     for x in range(state.nb_rows):
@@ -13,6 +13,4 @@ def respond(state:State):
             if species == state.our_species:
                 nb_moves +=1
                 moves += [[x, y, state.board[1, x, y], x-1, y]]
-    return (nb_moves, moves)
-
-
+    return nb_moves, moves
