@@ -4,22 +4,7 @@ from state import State
 from response import respond
 
 
-#def strategy(state):
-    #return(nb_moves, moves)
 
-
-def strategiedebile(state):
-    nb_moves = 0
-    moves = []
-    for x in range(state.nb_rows):
-        for y in range(state.nb_columns):
-            species = state.board[0, x, y]
-            if species == state.our_species:
-                print(f"species : {species}, our species : {state.our_species}")
-                nb_moves +=1
-                moves += [[x, y, state.board[1, x, y], x-1, y]]
-                print(f"playing move {moves}")
-    return (nb_moves, moves)
 
 def play_game(strategy):
     client_socket = ClientSocket()
@@ -50,5 +35,5 @@ def play_game(strategy):
             client_socket.send_MOV(nb_moves, moves)
 
 if __name__ == '__main__':
-    play_game(strategiedebile)
+    play_game(respond)
 
