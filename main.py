@@ -42,7 +42,7 @@ def play_game(strategy):
     print(f"time to update state with MAP : {t10 - t9}")
 
     # start of the game
-    while True :
+    while True:
         t0 = time.time()
         client_socket.get_message()
         t1 = time.time()

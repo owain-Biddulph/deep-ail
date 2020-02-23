@@ -54,7 +54,6 @@ class ClientSocket:
             data += self._socket.recv(1 - len(data))
         return bytes_to_int(data)
 
-
     def _parse_message(self) -> List:
         command: str = self._get_command()
         print(f"received command: {command}")
@@ -93,7 +92,6 @@ class ClientSocket:
                 upd.append([self._get_message(1), self._get_message(1), self._get_message(1), self._get_message(1),
                             self._get_message(1)])
             return ["upd", upd]
-
 
     def get_message(self) -> List:
         try:
