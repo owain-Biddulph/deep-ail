@@ -1,10 +1,7 @@
 from client import ClientSocket
-import config
 from state import State
 from response import respond
 import time
-
-
 
 
 def play_game(strategy):
@@ -12,10 +9,9 @@ def play_game(strategy):
     client_socket = ClientSocket()
     t1 = time.time()
     print(f"time to connect to socket : {t1 - t0}")
-    client_socket.send_NME("DeepAIl")
+    client_socket.send_nme("DeepAIl")
     t2 = time.time()
     print(f"time to send NME : {t2 - t1}")
-
     # set message
     client_socket.get_message()
     t3 = time.time()
@@ -23,7 +19,6 @@ def play_game(strategy):
     state = State(client_socket.message)
     t4 = time.time()
     print(f"time to initialize state : {t4 - t3}")
-
     # hum message
     client_socket.get_message()
     t5 = time.time()
@@ -46,8 +41,8 @@ def play_game(strategy):
     t10 = time.time()
     print(f"time to update state with MAP : {t10 - t9}")
 
-    #start of the game
-    while(True):
+    # start of the game
+    while True:
         t0 = time.time()
         client_socket.get_message()
         t1 = time.time()
@@ -59,10 +54,10 @@ def play_game(strategy):
             nb_moves, moves = strategy(state)
             t3 = time.time()
             print(f"time to think about strategy : {t3 - t2}")
-            client_socket.send_MOV(nb_moves, moves)
+            client_socket.send_mov(nb_moves, moves)
             t4 = time.time()
             print(f"time to send MOV message : {t4 - t3}")
 
+
 if __name__ == '__main__':
     play_game(respond)
-
