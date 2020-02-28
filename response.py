@@ -66,7 +66,7 @@ def all_possible_moves(state: State) -> List:
                     (x, y, nb_units, x, y - 1),
                 ])
         else:
-            pos = set(permutations([-1, -1, 0, 1, 1]))
+            pos = set(permutations([-1, -1, 0, 1, 1], 2))
             possible_moves += [(x, y, nb_units, x - t, y - u) for (t, u) in pos]
 
         return possible_moves
