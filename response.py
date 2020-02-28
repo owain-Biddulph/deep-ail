@@ -1,4 +1,5 @@
 from itertools import permutations
+import numpy as np
 from typing import Tuple, List
 
 from state import State
@@ -15,7 +16,7 @@ def respond(state: State) -> Tuple[int, List]:
 
 
 def all_possible_moves(state: State) -> List:
-    our_squares = list(zip(*state.board[:, :, 0].where(arr=state.our_species)))
+    our_squares = list(zip(*np.where(state.board[:, :, 0] == state.our_species)))
     possible_moves = []
     for square in our_squares:
         x, y = square
