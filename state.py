@@ -13,6 +13,14 @@ class State:
         self._house_list: List[Tuple[int, int]] = []
         self._starting_square = None
         self.our_species = None
+        self.our_troops : int = 0
+        self.ennemy_troops : int = 0
+
+        self.our_tiles : List[List[int]] = list()
+        self.ennemy_tiles : List[List[int]] = list()
+        self.human_tiles : List[List[int]] = list()
+
+
 
     @property
     def nb_rows(self) -> int:
@@ -40,7 +48,11 @@ class State:
             print(f"set starting square to: {self._starting_square}")
 
         elif message[0] == "map":
-            x, y = self._starting_square
+            x_home, y_home = self._starting_square
+            werewolf_tiles = list()
+            vampire_tiles = list()
+            werewolf_troops = 0
+            vampire_troops = 0
             for change in message[1]:
                 print(f"change {change}")
 
@@ -48,20 +60,38 @@ class State:
                 if change[2]!=0:
                     self._board[0, change[0], change[1]] = 1
                     self._board[1, change[0], change[1]] = change[2]
+                    self.human_tiles.append([change[0], change[1], change[2]])
 
                 #il y a des vampires
                 if change[3]!=0:
                     self._board[0, change[0], change[1]] = 2
                     self._board[1, change[0], change[1]] = change[3]
-                    if (change[0], change[1]) == (x, y):
+                    vampire_tiles.append([change[0], change[1], change[3]])
+                    vampire_troops+=change[3]
+                    if (change[0], change[1]) == (x_home, y_home):
                         self.our_species = 2
 
                 #il y a des loups garous
                 if change[4]!=0:
                     self._board[0, change[0], change[1]] = 3
                     self._board[1, change[0], change[1]] = change[4]
-                    if (change[0], change[1]) == (x, y):
+                    werewolf_tiles.append([change[0], change[1], change[4]])
+                    werewolf_troops+=change[4]
+                    if (change[0], change[1]) == (x_home, y_home):
                         self.our_species = 3
+
+            if self.our_species == 2:
+                self.our_troops = vampire_troops
+                self.our_tiles = vampire_tiles
+
+                self.ennemy_troops = werewolf_troops
+                self.ennemy_tiles = werewolf_tiles
+            else : 
+                self.our_troops = werewolf_troops
+                self.our_tiles = werewolf_tiles
+
+                self.ennemy_troops = vampire_troops
+                self.ennemy_tiles = vampire_tiles
 
             print(f"our species is {self.our_species}")
 
