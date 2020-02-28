@@ -1,6 +1,7 @@
 from itertools import permutations
 import numpy as np
 from typing import Tuple, List
+import time
 
 from state import State
 
@@ -8,6 +9,8 @@ from state import State
 def respond(state: State) -> Tuple[int, List]:
     # Basic test, always moves left
     moves = []
+    print(all_possible_moves(state))
+    time.sleep(0.5)
     for x in range(state.nb_rows):
         for y in range(state.nb_columns):
             if state.board[x, y, 0] == state.our_species:
