@@ -119,38 +119,44 @@ class State:
             winner = 'E1'
             return winner, [E1, E1_species]
 
-    def add_unit(self, n, x, y):
+    def add_unit(self, move_board, n, x, y):
         # Add n units in (x,y) position.
-        if self._board[0, x, y] == 0:
+        if move_board[0, x, y] == 0:
             # No unit in (x,y). Settlement of n units.
-            self._board[1, x, y] = n
-            self._board[0, x, y] = self.our_species
+            move_board[1, x, y] = n
+            move_board[0, x, y] = self.our_species
         else:
             # One or several units in (x,y). There will be blood.
             winner, (survivors, species) = self.battle(
                 E1=n, E1_species=self.our_species,
-                E2=self._board[1, x, y], E2_species=self._board[0, x, y])
-            self._board[1, x, y] = survivors
-            self._board[0, x, y] = species
+                E2=move_board[1, x, y], E2_species=move_board[0, x, y])
+            move_board[1, x, y] = survivors
+            move_board[0, x, y] = species
 
-    def remove_unit(self, n, x, y):
+        return move_board
+
+    def remove_unit(self, move_board, n, x, y):
         # Remove n units in (x,y) position.
-        if n < self._board[1, x, y]:
+        if n < move_board[1, x, y]:
             # Removing n units.
-            self._board[1, x, y] -= n
-        elif n == self._board[1, x, y]:
+            move_board[1, x, y] -= n
+        elif n == move_board[1, x, y]:
             # Removing all the units and cleaning the board.
-            self._board[:, x, y] = 0
+            move_board[:, x, y] = 0
         else:
             raise Exception('nope')
+        return move_board
 
     def next_state(self, moves):
         # Given a list of moves, outputs the next board state.
-        self.display_board()
+        # self.display_board()
+        move_board = np.array(self._board, copy=True)
         for move in moves:
             x_init, y_init = move[0], move[1]
             n = move[2]
             x_end, y_end = move[3], move[4]
-            self.remove_unit(n, x_init, y_init)
-            self.add_unit(n, x_end, y_end)
-        self.display_board()
+            self.remove_unit(move_board, n, x_init, y_init)
+            self.add_unit(move_board, n, x_end, y_end)
+        # self.display_board()
+
+        return move_board
