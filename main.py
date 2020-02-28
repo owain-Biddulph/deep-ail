@@ -4,6 +4,28 @@ from response import respond
 import time
 
 
+<<<<<<< HEAD
+=======
+#def strategy(state):
+    #return(nb_moves, moves)
+
+
+def strategiedebile(state):
+    nb_moves = 0
+    moves = []
+    for y in range(state.nb_rows):
+        for x in range(state.nb_columns):
+            # print(x, y, 'display')
+            state.display_board()
+            species = state.board[0, x, y]
+            if species == state.our_species:
+                print(f"species : {species}, our species : {state.our_species}")
+                nb_moves +=1
+                moves += [[x, y, state.board[1, x, y], x-1, y]]
+                print(f"playing move {moves}")
+    return (nb_moves, moves)
+
+>>>>>>> b79637a2849f9dfb723572b2015ce052da079d48
 def play_game(strategy):
     t0 = time.time()
     client_socket = ClientSocket()
