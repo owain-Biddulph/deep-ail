@@ -14,6 +14,12 @@ class State:
         self._house_list: List[Tuple[int, int]] = []
         self._starting_square = None
         self.our_species = None
+        self.our_troops: int = 0
+        self.ennemy_troops: int = 0
+
+        self.our_tiles: List[List[int]] = list()
+        self.ennemy_tiles: List[List[int]] = list()
+        self.human_tiles: List[List[int]] = list()
 
     @property
     def nb_rows(self) -> int:
@@ -39,25 +45,35 @@ class State:
             self._starting_square = message[1]
 
         elif message[0] == "map":
-            x, y = self._starting_square[0], self._starting_square[1]
+            x_home, y_home = self._starting_square
+            werewolf_tiles = list()
+            vampire_tiles = list()
+            werewolf_troops = 0
+            vampire_troops = 0
+
             for change in message[1]:
                 # il y a des humains
                 if change[2] != 0:
                     self._board[change[0], change[1], 0] = 1
                     self._board[change[0], change[1], 1] = change[2]
+                    self.human_tiles.append([change[0], change[1], change[2]])
 
                 # il y a des vampires
                 if change[3] != 0:
                     self._board[change[0], change[1], 0] = 2
                     self._board[change[0], change[1], 1] = change[3]
-                    if (change[0], change[1]) == (x, y):
+                    vampire_tiles.append([change[0], change[1], change[3]])
+                    vampire_troops += change[3]
+                    if (change[0], change[1]) == (x_home, y_home):
                         self.our_species = 2
 
                 # il y a des loups garous
                 if change[4] != 0:
                     self._board[change[0], change[1], 0] = 3
                     self._board[change[0], change[1], 1] = change[4]
-                    if (change[0], change[1]) == (x, y):
+                    werewolf_tiles.append([change[0], change[1], change[4]])
+                    werewolf_troops += change[4]
+                    if (change[0], change[1]) == (x_home, y_home):
                         self.our_species = 3
 
         elif message[0] == "upd":
