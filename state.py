@@ -9,7 +9,6 @@ class State:
     def __init__(self, set_message: Tuple[str, Tuple[int, int]]) -> None:
         self._nb_rows: int = set_message[1][0]
         self._nb_columns: int = set_message[1][1]
-        print(self._nb_columns, self._nb_rows)
         self._board: np.ndarray = np.zeros((self.nb_columns, self.nb_rows, 2), dtype=int)
         self._house_list: List[Tuple[int, int]] = []
         self._starting_square = None
