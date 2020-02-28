@@ -67,6 +67,22 @@ def all_possible_moves(state: State) -> List:
                     (x, y, nb_units, x, y + 1),
                     (x, y, nb_units, x, y - 1),
                 ]
+        elif y == 0:
+            possible_moves = [
+                (x, y, nb_units, x + 1, y + 1),
+                (x, y, nb_units, x + 1, y),
+                (x, y, nb_units, x - 1, y + 1),
+                (x, y, nb_units, x - 1, y),
+                (x, y, nb_units, x, y + 1),
+            ]
+        elif y == state.nb_rows - 1:
+            possible_moves = [
+                (x, y, nb_units, x + 1, y - 1),
+                (x, y, nb_units, x + 1, y),
+                (x, y, nb_units, x - 1, y - 1),
+                (x, y, nb_units, x - 1, y),
+                (x, y, nb_units, x, y - 1),
+            ]
         else:
             pos = set(permutations([-1, -1, 0, 1, 1], 2))
             possible_moves = [(x, y, nb_units, x - t, y - u) for (t, u) in pos]
