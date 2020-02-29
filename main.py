@@ -4,12 +4,6 @@ from response import respond
 import time
 
 
-<<<<<<< HEAD
-=======
-#def strategy(state):
-    #return(nb_moves, moves)
-
-
 def strategiedebile(state):
     nb_moves = 0
     moves = []
@@ -25,7 +19,7 @@ def strategiedebile(state):
                 print(f"playing move {moves}")
     return (nb_moves, moves)
 
->>>>>>> b79637a2849f9dfb723572b2015ce052da079d48
+
 def play_game(strategy):
     t0 = time.time()
     client_socket = ClientSocket()
