@@ -14,12 +14,20 @@ class State:
         self._house_list: List[Tuple[int, int]] = []
         self._starting_square = None
         self.our_species = None
-        self.our_troops: int = 0
-        self.ennemy_troops: int = 0
+        self.enemy_species = None
 
-        self.our_tiles: List[List[int]] = list()
-        self.ennemy_tiles: List[List[int]] = list()
+        self.our_troops: List[int] = None
+        self.enemy_troops: List[int] = None
+        self.vampire_troops: List[int] = [0]
+        self.werewolf_troops: List[int] = [0]
+
+        self.our_tiles: List[List[int]] = None
+        self.enemy_tiles: List[List[int]] = None
         self.human_tiles: List[List[int]] = list()
+        self.vampire_tiles: List[List[int]] = list()
+        self.werewolf_tiles: List[List[int]] = list()
+
+
 
     @property
     def nb_rows(self) -> int:
@@ -62,19 +70,33 @@ class State:
                 if change[3] != 0:
                     self._board[change[0], change[1], 0] = 2
                     self._board[change[0], change[1], 1] = change[3]
-                    vampire_tiles.append([change[0], change[1], change[3]])
-                    vampire_troops += change[3]
+                    self.vampire_tiles.append([change[0], change[1], change[3]])
+                    self.vampire_troops[0] += change[3]
                     if (change[0], change[1]) == (x_home, y_home):
                         self.our_species = 2
+                        self.enemy_species = 3
 
                 # il y a des loups garous
                 if change[4] != 0:
                     self._board[change[0], change[1], 0] = 3
                     self._board[change[0], change[1], 1] = change[4]
-                    werewolf_tiles.append([change[0], change[1], change[4]])
-                    werewolf_troops += change[4]
+                    self.werewolf_tiles.append([change[0], change[1], change[4]])
+                    self.werewolf_troops[0] += change[4]
                     if (change[0], change[1]) == (x_home, y_home):
                         self.our_species = 3
+                        self.enemy_species = 2
+
+            if self.our_species == 2: #nous sommes les vampires
+                self.our_tiles = vampire_tiles
+                self.our_troops = vampire_troops
+                self.enemy_tiles = werewolf_tiles
+                self.enemy_troops = werewolf_troops
+
+            elif self.our_species == 3: #nous sommes les loups garous
+                self.our_tiles = werewolf_tiles
+                self.our_troops = werewolf_troops
+                self.enemy_tiles = vampire_tiles
+                self.enemy_troops = vampire_troops
 
         elif message[0] == "upd":
             for change in message[1]:
@@ -87,16 +109,21 @@ class State:
                 elif change[3] != 0:
                     self._board[change[0], change[1], 0] = 2
                     self._board[change[0], change[1], 1] = change[3]
+                    self.vampire_tiles.append([change[0], change[1], change[3]])
+                    self.vampire_troops[0] += change[3]# TODO c'est faux, si les troupes se déplacent, on n'en ajoute pas.
 
                 # il y a des loups garous
                 elif change[4] != 0:
                     self._board[change[0], change[1], 0] = 3
                     self._board[change[0], change[1], 1] = change[4]
+                    self.werewolf_tiles.append([change[0], change[1], change[4]])
+                    self.werewolf_troops[0] += change[4]
 
-                # il n'y a rien
+                # quelque chose est parti
                 else:
                     self._board[change[0], change[1], 0] = 0
                     self._board[change[0], change[1], 1] = 0
+                    # on cherche les cases à enlever s'il y en a
 
     def get_probability(self, E1, E2):
         # Given the number of units, measures the probability of winning.
@@ -137,28 +164,28 @@ class State:
 
     def add_unit(self, move_board, n, x, y):
         # Add n units in (x,y) position.
-        if move_board[0, x, y] == 0:
+        if move_board[x, y, 0] == 0:
             # No unit in (x,y). Settlement of n units.
-            move_board[1, x, y] = n
-            move_board[0, x, y] = self.our_species
+            move_board[x, y, 1] = n
+            move_board[x, y, 0] = self.our_species
         else:
             # One or several units in (x,y). There will be blood.
             winner, (survivors, species) = self.battle(
                 E1=n, E1_species=self.our_species,
-                E2=move_board[1, x, y], E2_species=move_board[0, x, y])
-            move_board[1, x, y] = survivors
-            move_board[0, x, y] = species
+                E2=move_board[x, y, 1], E2_species=move_board[x, y, 0])
+            move_board[x, y, 1] = survivors
+            move_board[x, y, 0] = species
 
         return move_board
 
     def remove_unit(self, move_board, n, x, y):
         # Remove n units in (x,y) position.
-        if n < move_board[1, x, y]:
+        if n < move_board[x, y, 1]:
             # Removing n units.
-            move_board[1, x, y] -= n
-        elif n == move_board[1, x, y]:
+            move_board[x, y, 1] -= n
+        elif n == move_board[x, y, 1]:
             # Removing all the units and cleaning the board.
-            move_board[:, x, y] = 0
+            move_board[x, y, :] = 0
         else:
             raise Exception('nope')
         return move_board
@@ -176,3 +203,30 @@ class State:
         # self.display_board()
 
         return move_board
+
+    def copy_state(self):
+        copy = State(["set", [self._nb_rows, self._nb_columns]])
+
+        copy._nb_rows = self._nb_rows
+        copy._nb_columns = self._nb_columns
+        copy._board = np.copy(self._board)
+        copy._house_list = np.copy(self._house_list)
+        copy._starting_square = np.copy(self._starting_square)
+        copy.our_species = self.our_species
+        copy.enemy_species = self.enemy_species
+
+        copy.our_troops = self.our_troops
+        copy.enemy_troops = self.enemy_troops
+        copy.vampire_troops = self.vampire_troops
+        copy.werewolf_troops = self.werewolf_troops
+
+        copy.our_tiles = self.our_tiles
+        copy.enemy_tiles = self.enemy_tiles
+        copy.human_tiles = self.human_tiles
+        copy.vampire_tiles = self.vampire_tiles
+        copy.werewolf_tiles = self.werewolf_tiles
+
+        return(copy)
+
+
+

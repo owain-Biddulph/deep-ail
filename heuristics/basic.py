@@ -2,9 +2,28 @@ import math
 from typing import List
 
 
+def evaluate(state):
+    all_occupied_tile_us = []
+    all_occupied_tile_other = []
+    race_pop = 0
+    adverse_pop = 0
+    ponderation = [1,1]
+
+    for x in range(state.nb_columns):
+        for y in range(state.nb_rows):
+            if state.board[x][y][0] == state.our_species:
+                all_occupied_tile_us += [[x, y, state.board[x][y][1]]]
+                race_pop += state.board[x][y][1]
+            if state.board[x][y][0] == state.enemy_species:
+                all_occupied_tile_other += [[x, y, state.board[x][y][1]]]
+                adverse_pop += state.board[x][y][1]
+
+    return simple_score(all_occupied_tile_us, all_occupied_tile_other, race_pop, adverse_pop, ponderation)
+
+
 def simple_score(all_occupied_tile_us: List[List[int]], all_occupied_tile_other: List[List[int]],
                  race_pop: int, adverse_pop: int, ponderation: List[int] = list((1, 1))):
-    # all_occupied_tile assumed to be with format : [x_position, y_position, number, type]
+    # all_occupied_tile assumed to be with format : [x_position, y_position, number]
 
     if adverse_pop == 0:
         return math.inf
