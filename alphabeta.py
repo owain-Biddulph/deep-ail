@@ -5,12 +5,10 @@ from typing import List
 from state import State
 from heuristics.basic import evaluate
 
-def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool):
-    print(state)
-    print("COUCOU")
-    print(state.nb_rows)
-    print(state.enemy_species)
 
+def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool):
+
+    print(f'DEPTH :{depth}')
     if depth == 0:
         return [evaluate(state), None]
 
@@ -21,7 +19,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool)
             return [-100000, None] # ca veut dire qu'on n'a plus de bonhommes donc qu'on a perdu
         best_move = None
         for move in possible_moves:
-            child_state_board = state.next_state([move])
+            child_state_board = state.next_state([move], state.our_species)
             board_backup = state._board
             state._board = child_state_board
             alphabeta_result = alphabeta(state, depth - 1, alpha, beta, False)[0]
@@ -29,10 +27,11 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool)
                 current_value = alphabeta_result
                 best_move = move
             state._board = board_backup
-
+            print(f"current value = {current_value}")
             alpha = max(alpha, current_value)
             if alpha >= beta:
                 break # beta cut-off
+
         return [current_value, best_move]
     else:
         current_value = 100000
@@ -41,7 +40,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool)
             return [100000, None] # ca veut dire qu'ils n'ont plus de bonhommes donc qu'on a gagné
         best_move = None
         for move in possible_moves:
-            child_state_board = state.next_state([move])
+            child_state_board = state.next_state([move], state.enemy_species)
             board_backup = state._board
             state._board = child_state_board
             alphabeta_result = alphabeta(state, depth - 1, alpha, beta, False)[0]
@@ -56,15 +55,8 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool)
         return [current_value, best_move]
 
 
-
-
-
-
-
-
 def all_possible_moves(state: State, species: int) -> List:
     active_squares = list(zip(*np.where(state.board[:, :, 0] == species)))
-    print(active_squares)
     possible_moves = None
     for square in active_squares:
         x, y = square

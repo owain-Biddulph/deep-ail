@@ -27,8 +27,6 @@ class State:
         self.vampire_tiles: List[List[int]] = list()
         self.werewolf_tiles: List[List[int]] = list()
 
-
-
     @property
     def nb_rows(self) -> int:
         return self._nb_rows
@@ -125,6 +123,7 @@ class State:
                     self._board[change[0], change[1], 1] = 0
                     # on cherche les cases à enlever s'il y en a
 
+
     def get_probability(self, E1, E2):
         # Given the number of units, measures the probability of winning.
         if E1 == E2:
@@ -146,32 +145,32 @@ class State:
             if victory:
                 # Every winner's unit has a probability p of surviving.
                 winner = 'E1'
-                survivors_E1 = [p > np.random.random() for k in range(E1)]
+                survivors_E1 = [p > np.random.random() for _ in range(E1)]
                 if E2_species == 1:
                     # If losers are humans, every one of them has a probability p of being transformed.
-                    transformed = [p > np.random.random() for k in range(E2)]
+                    transformed = [p > np.random.random() for _ in range(E2)]
                     return winner, [sum(survivors_E1) + sum(transformed), E1_species]
                 else:
                     return winner, [sum(survivors_E1), E1_species]
             else:
                 # Every winner's unit has a probability 1-p of surviving
                 winner = 'E2'
-                survivors_E2 = [p > np.random.random() for k in range(E2)]
+                survivors_E2 = [p > np.random.random() for _ in range(E2)]
                 return winner, [sum(survivors_E2), E2_species]
         else:
             winner = 'E1'
             return winner, [E1, E1_species]
 
-    def add_unit(self, move_board, n, x, y):
+    def add_unit(self, move_board, n, x, y, species_to_add):
         # Add n units in (x,y) position.
         if move_board[x, y, 0] == 0:
             # No unit in (x,y). Settlement of n units.
             move_board[x, y, 1] = n
-            move_board[x, y, 0] = self.our_species
+            move_board[x, y, 0] = species_to_add
         else:
             # One or several units in (x,y). There will be blood.
             winner, (survivors, species) = self.battle(
-                E1=n, E1_species=self.our_species,
+                E1=n, E1_species=species_to_add,
                 E2=move_board[x, y, 1], E2_species=move_board[x, y, 0])
             move_board[x, y, 1] = survivors
             move_board[x, y, 0] = species
@@ -190,7 +189,7 @@ class State:
             raise Exception('nope')
         return move_board
 
-    def next_state(self, moves):
+    def next_state(self, moves, species):
         # Given a list of moves, outputs the next board state.
         # self.display_board()
         move_board = np.array(self._board, copy=True)
@@ -199,7 +198,7 @@ class State:
             n = move[2]
             x_end, y_end = move[3], move[4]
             self.remove_unit(move_board, n, x_init, y_init)
-            self.add_unit(move_board, n, x_end, y_end)
+            self.add_unit(move_board, n, x_end, y_end, species)
         # self.display_board()
 
         return move_board
@@ -226,7 +225,7 @@ class State:
         copy.vampire_tiles = self.vampire_tiles
         copy.werewolf_tiles = self.werewolf_tiles
 
-        return(copy)
+        return copy
 
 
 
