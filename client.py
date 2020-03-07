@@ -57,7 +57,6 @@ class ClientSocket:
 
     def _parse_message(self) -> List:
         command: str = self._get_command()
-        print(f"received command: {command}")
         if command == "END":
             raise EndException()
         if command == "BYE":
