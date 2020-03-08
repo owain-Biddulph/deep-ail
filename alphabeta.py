@@ -60,20 +60,20 @@ def all_possible_moves(state: State, species: int) -> List:
         if x == 0:
             if y == 0:
                 possible_moves = [
-                    (x, y, nb_units, x + 1, y),
                     (x, y, nb_units, x + 1, y + 1),
+                    (x, y, nb_units, x + 1, y),
                     (x, y, nb_units, x, y + 1),
                 ]
             elif y == state.nb_rows - 1:
                 possible_moves = [
-                    (x, y, nb_units, x + 1, y),
                     (x, y, nb_units, x + 1, y - 1),
+                    (x, y, nb_units, x + 1, y),
                     (x, y, nb_units, x, y - 1),
                 ]
             else:
                 possible_moves = [
-                    (x, y, nb_units, x + 1, y + 1),
                     (x, y, nb_units, x + 1, y),
+                    (x, y, nb_units, x + 1, y + 1),
                     (x, y, nb_units, x + 1, y - 1),
                     (x, y, nb_units, x, y + 1),
                     (x, y, nb_units, x, y - 1),
@@ -81,43 +81,51 @@ def all_possible_moves(state: State, species: int) -> List:
         elif x == state.nb_columns - 1:
             if y == 0:
                 possible_moves = [
-                    (x, y, nb_units, x - 1, y),
                     (x, y, nb_units, x - 1, y + 1),
+                    (x, y, nb_units, x - 1, y),
                     (x, y, nb_units, x, y + 1),
                 ]
             elif y == state.nb_rows - 1:
                 possible_moves = [
-                    (x, y, nb_units, x - 1, y),
                     (x, y, nb_units, x - 1, y - 1),
+                    (x, y, nb_units, x - 1, y),
                     (x, y, nb_units, x, y - 1),
                 ]
             else:
                 possible_moves = [
-                    (x, y, nb_units, x - 1, y + 1),
                     (x, y, nb_units, x - 1, y),
+                    (x, y, nb_units, x - 1, y + 1),
                     (x, y, nb_units, x - 1, y - 1),
                     (x, y, nb_units, x, y + 1),
                     (x, y, nb_units, x, y - 1),
                 ]
         elif y == 0:
             possible_moves = [
-                (x, y, nb_units, x + 1, y + 1),
-                (x, y, nb_units, x + 1, y),
-                (x, y, nb_units, x - 1, y + 1),
-                (x, y, nb_units, x - 1, y),
                 (x, y, nb_units, x, y + 1),
+                (x, y, nb_units, x + 1, y + 1),
+                (x, y, nb_units, x - 1, y + 1),
+                (x, y, nb_units, x + 1, y),
+                (x, y, nb_units, x - 1, y),
             ]
         elif y == state.nb_rows - 1:
             possible_moves = [
-                (x, y, nb_units, x + 1, y - 1),
-                (x, y, nb_units, x + 1, y),
-                (x, y, nb_units, x - 1, y - 1),
-                (x, y, nb_units, x - 1, y),
                 (x, y, nb_units, x, y - 1),
+                (x, y, nb_units, x + 1, y - 1),
+                (x, y, nb_units, x - 1, y - 1),
+                (x, y, nb_units, x + 1, y),
+                (x, y, nb_units, x - 1, y),
             ]
         else:
-            pos = set(permutations([-1, -1, 0, 1, 1], 2))
-            possible_moves = [(x, y, nb_units, x - t, y - u) for (t, u) in pos]
+            possible_moves = [
+                (x, y, nb_units, x, y + 1),
+                (x, y, nb_units, x, y - 1),
+                (x, y, nb_units, x + 1, y),
+                (x, y, nb_units, x - 1, y),
+                (x, y, nb_units, x + 1, y + 1),
+                (x, y, nb_units, x - 1, y - 1),
+                (x, y, nb_units, x + 1, y - 1),
+                (x, y, nb_units, x - 1, y + 1),
+            ]
     return possible_moves
 
 
