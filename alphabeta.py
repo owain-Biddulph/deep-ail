@@ -38,7 +38,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool)
         for move in possible_moves:
             child_state = state.copy_state()
             child_state.next_state([move], state.enemy_species)
-            alphabeta_result = alphabeta(state, depth - 1, alpha, beta, False)[0]
+            alphabeta_result = alphabeta(child_state, depth - 1, alpha, beta, True)[0]
             if current_value > alphabeta_result:
                 current_value = alphabeta_result
                 best_move = move
