@@ -1,5 +1,8 @@
 from typing import List, Tuple
+
 import numpy as np
+
+import utils
 
 
 class State:
@@ -124,46 +127,6 @@ class State:
                     self._board[change[0], change[1], 1] = 0
                     # on cherche les cases à enlever s'il y en a
 
-    @staticmethod
-    def __get_probability(E1, E2):
-        # Given the number of units, measures the probability of winning.
-        if E1 == E2:
-            p = .5
-        elif E1 < E2:
-            p = E1 / (2 * E2)
-        else:
-            p = E1 / E2 - .5
-        return p
-
-    @staticmethod
-    def __battle(species_1_units, species_1_type, species_2_units, species_2_type):
-        # Simulates a battle between E1 and E2.
-        if ((species_2_type == 1) & (species_1_units < species_2_units)) | (
-                (species_2_type != 1) & (species_1_units < 1.5 * species_2_units)):
-
-            p = State.__get_probability(species_1_units, species_2_units)
-            rd = np.random.random()
-            victory = p > rd
-
-            if victory:
-                # Every winner's unit has a probability p of surviving.
-                winner = 'E1'
-                survivors_E1 = [p > np.random.random() for _ in range(species_1_units)]
-                if species_2_type == 1:
-                    # If losers are humans, every one of them has a probability p of being transformed.
-                    transformed = [p > np.random.random() for _ in range(species_2_units)]
-                    return winner, [sum(survivors_E1) + sum(transformed), species_1_type]
-                else:
-                    return winner, [sum(survivors_E1), species_1_type]
-            else:
-                # Every winner's unit has a probability 1-p of surviving
-                winner = 'E2'
-                survivors_E2 = [p > np.random.random() for _ in range(species_2_units)]
-                return winner, [sum(survivors_E2), species_2_type]
-        else:
-            winner = 'E1'
-            return winner, [species_1_units + (species_2_type == 1) * species_2_units, species_1_type]
-
     def __add_unit(self, n, x, y, species_to_add):
         # Add n units in (x,y) position.
         if self.board[x, y, 0] == 0:
@@ -172,9 +135,9 @@ class State:
             self.board[x, y, 0] = species_to_add
         else:
             # One or several units in (x,y). There will be blood.
-            winner, (survivors, species) = State.__battle(species_1_units=n, species_1_type=species_to_add,
-                                                          species_2_units=self.board[x, y, 1],
-                                                          species_2_type=self.board[x, y, 0])
+            (species, survivors) = utils.battle_simulation(species_1_units=n, species_1_type=species_to_add,
+                                                           species_2_units=self.board[x, y, 1],
+                                                           species_2_type=self.board[x, y, 0])
             self.board[x, y, 1] = survivors
             self.board[x, y, 0] = species
 
