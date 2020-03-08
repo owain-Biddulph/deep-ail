@@ -84,13 +84,13 @@ class State:
                         self.our_species = 3
                         self.enemy_species = 2
 
-            if self.our_species == 2: #nous sommes les vampires
+            if self.our_species == 2:  # nous sommes les vampires
                 self.our_tiles = vampire_tiles
                 self.our_troops = vampire_troops
                 self.enemy_tiles = werewolf_tiles
                 self.enemy_troops = werewolf_troops
 
-            elif self.our_species == 3: #nous sommes les loups garous
+            elif self.our_species == 3:  # nous sommes les loups garous
                 self.our_tiles = werewolf_tiles
                 self.our_troops = werewolf_troops
                 self.enemy_tiles = vampire_tiles
@@ -108,7 +108,8 @@ class State:
                     self._board[change[0], change[1], 0] = 2
                     self._board[change[0], change[1], 1] = change[3]
                     self.vampire_tiles.append([change[0], change[1], change[3]])
-                    self.vampire_troops[0] += change[3]# TODO c'est faux, si les troupes se déplacent, on n'en ajoute pas.
+                    self.vampire_troops[0] += change[
+                        3]  # TODO c'est faux, si les troupes se déplacent, on n'en ajoute pas.
 
                 # il y a des loups garous
                 elif change[4] != 0:
@@ -123,8 +124,8 @@ class State:
                     self._board[change[0], change[1], 1] = 0
                     # on cherche les cases à enlever s'il y en a
 
-
-    def get_probability(self, E1, E2):
+    @staticmethod
+    def __get_probability(E1, E2):
         # Given the number of units, measures the probability of winning.
         if E1 == E2:
             p = .5
@@ -134,77 +135,74 @@ class State:
             p = E1 / E2 - .5
         return p
 
-    def battle(self, E1, E1_species, E2, E2_species):
+    @staticmethod
+    def __battle(species_1_units, species_1_type, species_2_units, species_2_type):
         # Simulates a battle between E1 and E2.
-        if ((E2_species == 1) & (E1 < E2)) | ((E2_species != 1) & (E1 < 1.5 * E2)):
+        if ((species_2_type == 1) & (species_1_units < species_2_units)) | (
+                (species_2_type != 1) & (species_1_units < 1.5 * species_2_units)):
 
-            p = self.get_probability(E1, E2)
+            p = State.__get_probability(species_1_units, species_2_units)
             rd = np.random.random()
             victory = p > rd
 
             if victory:
                 # Every winner's unit has a probability p of surviving.
                 winner = 'E1'
-                survivors_E1 = [p > np.random.random() for _ in range(E1)]
-                if E2_species == 1:
+                survivors_E1 = [p > np.random.random() for _ in range(species_1_units)]
+                if species_2_type == 1:
                     # If losers are humans, every one of them has a probability p of being transformed.
-                    transformed = [p > np.random.random() for _ in range(E2)]
-                    return winner, [sum(survivors_E1) + sum(transformed), E1_species]
+                    transformed = [p > np.random.random() for _ in range(species_2_units)]
+                    return winner, [sum(survivors_E1) + sum(transformed), species_1_type]
                 else:
-                    return winner, [sum(survivors_E1), E1_species]
+                    return winner, [sum(survivors_E1), species_1_type]
             else:
                 # Every winner's unit has a probability 1-p of surviving
                 winner = 'E2'
-                survivors_E2 = [p > np.random.random() for _ in range(E2)]
-                return winner, [sum(survivors_E2), E2_species]
+                survivors_E2 = [p > np.random.random() for _ in range(species_2_units)]
+                return winner, [sum(survivors_E2), species_2_type]
         else:
             winner = 'E1'
-            return winner, [E1, E1_species]
+            return winner, [species_1_units + (species_2_type == 1) * species_2_units, species_1_type]
 
-    def add_unit(self, move_board, n, x, y, species_to_add):
+    def __add_unit(self, n, x, y, species_to_add):
         # Add n units in (x,y) position.
-        if move_board[x, y, 0] == 0:
+        if self.board[x, y, 0] == 0:
             # No unit in (x,y). Settlement of n units.
-            move_board[x, y, 1] = n
-            move_board[x, y, 0] = species_to_add
+            self.board[x, y, 1] = n
+            self.board[x, y, 0] = species_to_add
         else:
             # One or several units in (x,y). There will be blood.
-            winner, (survivors, species) = self.battle(
-                E1=n, E1_species=species_to_add,
-                E2=move_board[x, y, 1], E2_species=move_board[x, y, 0])
-            move_board[x, y, 1] = survivors
-            move_board[x, y, 0] = species
+            winner, (survivors, species) = State.__battle(species_1_units=n, species_1_type=species_to_add,
+                                                          species_2_units=self.board[x, y, 1],
+                                                          species_2_type=self.board[x, y, 0])
+            self.board[x, y, 1] = survivors
+            self.board[x, y, 0] = species
 
-        return move_board
-
-    def remove_unit(self, move_board, n, x, y):
+    def __remove_unit(self, n, x, y):
         # Remove n units in (x,y) position.
-        if n < move_board[x, y, 1]:
+        if n < self.board[x, y, 1]:
             # Removing n units.
-            move_board[x, y, 1] -= n
-        elif n == move_board[x, y, 1]:
+            self.board[x, y, 1] -= n
+        elif n == self.board[x, y, 1]:
             # Removing all the units and cleaning the board.
-            move_board[x, y, :] = 0
+            self.board[x, y, :] = 0
         else:
             raise Exception('nope')
-        return move_board
+        return self.board
 
     def next_state(self, moves, species):
         # Given a list of moves, outputs the next board state.
         # self.display_board()
-        move_board = np.array(self._board, copy=True)
         for move in moves:
             x_init, y_init = move[0], move[1]
             n = move[2]
             x_end, y_end = move[3], move[4]
-            self.remove_unit(move_board, n, x_init, y_init)
-            self.add_unit(move_board, n, x_end, y_end, species)
+            self.__remove_unit(n, x_init, y_init)
+            self.__add_unit(n, x_end, y_end, species)
         # self.display_board()
 
-        return move_board
-
     def copy_state(self):
-        copy = State(["set", [self._nb_rows, self._nb_columns]])
+        copy = State(("set", (self._nb_rows, self._nb_columns)))
 
         copy._nb_rows = self._nb_rows
         copy._nb_columns = self._nb_columns
@@ -226,6 +224,3 @@ class State:
         copy.werewolf_tiles = self.werewolf_tiles
 
         return copy
-
-
-
