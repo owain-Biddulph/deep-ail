@@ -46,7 +46,11 @@ class State:
         print(np.transpose(self._board, axes=(0, 2, 1)))
 
     def update(self, message) -> None:
-        print(f"in function update with message : {message}")
+        """
+        Update board state
+
+        :param message: message from server
+        """
         if message[0] == "hum":
             self._house_list = message[1]
 
@@ -134,10 +138,14 @@ class State:
             self.board[x, y, 1] = n
             self.board[x, y, 0] = species_to_add
         else:
-            # One or several units in (x,y). There will be blood.
-            (species, survivors) = utils.battle_simulation(species_1_units=n, species_1_type=species_to_add,
-                                                           species_2_units=self.board[x, y, 1],
-                                                           species_2_type=self.board[x, y, 0])
+            # If the outcome is sure, return that, otherwise return a loss
+            win_probability = utils.win_probability(n, self.board[x, y, 1], self.board[x, y, 0])
+            if win_probability in [0, 1]:
+                (species, survivors) = utils.battle_simulation(n, species_to_add, self.board[x, y, 1],
+                                                               self.board[x, y, 0])
+            else:
+                species = self.board[x, y, 0]
+                survivors = np.random.binomial(self.board[x, y, 1], 1-win_probability)
             self.board[x, y, 1] = survivors
             self.board[x, y, 0] = species
 
@@ -165,6 +173,11 @@ class State:
         # self.display_board()
 
     def copy_state(self):
+        """
+        return a copy of self as a new State object
+        
+        :return: State object
+        """
         copy = State(("set", (self._nb_rows, self._nb_columns)))
 
         copy._nb_rows = self._nb_rows
