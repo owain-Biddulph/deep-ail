@@ -117,7 +117,6 @@ class ClientSocket:
         message = bytes([nb_moves])
         for move in moves:
             for data in move:
-                print(data)
                 message += bytes([data])
 
         self._socket.send("MOV".encode() + message)
