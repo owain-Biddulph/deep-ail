@@ -57,7 +57,6 @@ class ClientSocket:
 
     def _parse_message(self) -> List:
         command: str = self._get_command()
-        print(f"received command: {command}")
         if command == "END":
             raise EndException()
         if command == "BYE":
@@ -118,7 +117,6 @@ class ClientSocket:
         message = bytes([nb_moves])
         for move in moves:
             for data in move:
-                print(data)
                 message += bytes([data])
 
         self._socket.send("MOV".encode() + message)

@@ -10,12 +10,8 @@ def respond(state: State) -> Tuple[int, List]:
     moves = []
 
     state_copy = state.copy_state()
-    print("YOO")
-    print(state_copy)
-    print(state_copy.enemy_species)
 
-    moves.append(alphabeta(state_copy, 2, -inf, inf, True)[1])
-    print(moves)
+    moves.append(alphabeta(state_copy, 4, -inf, inf, True)[1])
     return len(moves), moves
 
 
