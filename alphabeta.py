@@ -1,6 +1,7 @@
 from itertools import combinations, product
 import numpy as np
 from typing import List, Tuple
+import math
 
 from state import State
 from heuristics.basic import evaluate
@@ -8,13 +9,13 @@ from heuristics.basic import evaluate
 
 def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool):
     if depth == 0:
-        return [evaluate(state), None]
+        return [evaluate(state, maximizing_player), None]
 
     if maximizing_player:
-        current_value = -100000
+        current_value = -math.inf
         possible_moves = all_possible_moves(state, state.our_species)
         if possible_moves is None:
-            return [-100000, None]  # No more friendly units, we have lost
+            return [-math.inf, None]  # No more friendly units, we have lost
         best_move = None
         for move in possible_moves:
             child_state = state.copy_state()
@@ -26,15 +27,13 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool)
             alpha = max(alpha, current_value)
             if alpha >= beta:
                 break  # beta cut-off
-            # print(f"move : {move}")
-            # print(f"value : {current_value}")
 
         return current_value, best_move
     else:
-        current_value = 100000
+        current_value = math.inf
         possible_moves = all_possible_moves(state, state.enemy_species)
         if possible_moves is None:
-            return [100000, None]  # No more enemy units, we have won
+            return [math.inf, None]  # No more enemy units, we have won
         best_move = None
         for move in possible_moves:
             child_state = state.copy_state()
