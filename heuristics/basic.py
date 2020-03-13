@@ -31,12 +31,12 @@ def evaluate(state: State, maximizing_player: bool) -> float:
                 all_occupied_tile_human += [[x, y, state.board[x][y][1]]]
 
     return simple_score(state, all_occupied_tile_us, all_occupied_tile_opponent, all_occupied_tile_human,
-                        race_pop, adverse_pop, ponderation, maximizing_player)
+                        race_pop, adverse_pop, maximizing_player, ponderation)
 
 
 def simple_score(state: State, all_occupied_tile_us: List[List[int]], all_occupied_tile_opponent: List[List[int]],
                  all_occupied_tile_human: List[List[int]], our_population: int,
-                 enemy_population: int, ponderation=None, maximizing_player: bool) -> float:
+                 enemy_population: int, maximizing_player: bool, ponderation=None) -> float:
     """
     Returns a score for a given state
     
@@ -54,14 +54,16 @@ def simple_score(state: State, all_occupied_tile_us: List[List[int]], all_occupi
         ponderation = [4, 1, 1]
     if enemy_population == 0:
         return math.inf
+    if our_population == 0:
+        return -math.inf
     current_state_score: float = our_population - enemy_population
 
     potential_score: float = 0
     for tile_1 in all_occupied_tile_us:
         for tile_2 in all_occupied_tile_opponent:
             distance_factor = 1 / utils.distance(tile_1, tile_2)
-            potential_score += distance_factor * tile_score(
-                tile_1[2], tile_2[2], state.board[tile_2[0]][tile_2[1]][0])
+            potential_score += distance_factor * (tile_score(
+                tile_1[2], tile_2[2], state.board[tile_2[0]][tile_2[1]][0]) - 0.5)
 
     another_score: float = 0
     for human in all_occupied_tile_human:
@@ -70,6 +72,7 @@ def simple_score(state: State, all_occupied_tile_us: List[List[int]], all_occupi
         first_to_reach_us = []
         first_to_reach_opponent = []
         first_to_reach = []
+        got_there_first = False
         for our_troop in all_occupied_tile_us:
             if min_us > utils.distance(human, our_troop):
                 min_us = utils.distance(human, our_troop)
@@ -79,17 +82,23 @@ def simple_score(state: State, all_occupied_tile_us: List[List[int]], all_occupi
                 min_opponent = utils.distance(human, opponent_troop)
                 first_to_reach_opponent = opponent_troop
         if min_us > min_opponent:
-            first_to_reach = first_to_reach_us
-        elif min_opponent > min_us:
             first_to_reach = first_to_reach_opponent
+            got_there_first = False
+        elif min_opponent > min_us:
+            first_to_reach = first_to_reach_us
+            got_there_first = True
         elif min_us == min_opponent:
             if maximizing_player:
                 first_to_reach = first_to_reach_us
+                got_there_first = True
             else:
                 first_to_reach = first_to_reach_opponent
+                got_there_first = False
 
-        another_score += (min_us - min_opponent) * tile_score(first_to_reach[2], human[2], 1)
-
+        if got_there_first:
+            another_score += 1/min_us * tile_score(first_to_reach[2], human[2], 1) * human[2]
+        else:
+            another_score += 0
     score: float = ponderation[0] * current_state_score + ponderation[1] * potential_score + ponderation[2]*another_score
     return score
 
