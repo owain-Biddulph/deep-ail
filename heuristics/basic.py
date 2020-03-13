@@ -57,7 +57,7 @@ def simple_score(state: State, all_occupied_tile_us: List[List[int]], all_occupi
         for tile_2 in all_occupied_tile_other:
             distance_factor = 1 / utils.distance(tile_1, tile_2)
             potential_score += distance_factor * tile_score(
-                tile_1[2], tile_2[2], state.enemy_species)
+                tile_1[2], tile_2[2], state.board[tile_2[0]][tile_2[1]][0])
 
     score: float = ponderation[0] * current_state_score + ponderation[1] * potential_score
     return score
@@ -75,7 +75,7 @@ def tile_score(our_troops: int, their_troops: int, their_species: int) -> float:
     if their_species == 1:
         return utils.win_probability(our_troops, their_troops, their_species)
     else:
-        if our_troops >= their_troops:
+        if our_troops > their_troops:
             return utils.win_probability(our_troops, their_troops, their_species)
         else:
             # approche prudente (si moins d'une chance sur deux de gagner ça devient négatif)

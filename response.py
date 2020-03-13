@@ -11,7 +11,7 @@ def respond(state: State) -> Tuple[int, List]:
 
     state_copy = state.copy_state()
 
-    moves.append(alphabeta(state_copy, 4, -inf, inf, True)[1])
+    moves = alphabeta(state_copy, 3, -inf, inf, True)[1]
     return len(moves), moves
 
 

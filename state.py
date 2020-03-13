@@ -132,7 +132,6 @@ class State:
                     # on cherche les cases à enlever s'il y en a
 
     def __add_unit(self, n, x, y, species_to_add):
-        # TODO: Will need to change this when we can split
         # Add n units in (x,y) position.
         if self.board[x, y, 0] == 0:
             # No unit in (x,y). Settlement of n units.
