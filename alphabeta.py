@@ -26,6 +26,8 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool)
             alpha = max(alpha, current_value)
             if alpha >= beta:
                 break  # beta cut-off
+            # print(f"move : {move}")
+            # print(f"value : {current_value}")
 
         return current_value, best_move
     else:
@@ -49,6 +51,12 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool)
 
 
 def all_possible_moves(state: State, species: int) -> List[List[Tuple[int, int, int, int, int]]]:
+    """Returns all the possible moves, limits number of splits to 2 in total
+
+    :param state:
+    :param species:
+    :return:
+    """
     active_squares = list(zip(*np.where(state.board[:, :, 0] == species)))
     square_moves = []
     for square in active_squares:
@@ -57,16 +65,17 @@ def all_possible_moves(state: State, species: int) -> List[List[Tuple[int, int, 
         nb_units = state.board[x, y, 1]
         #  Legal squares
         possible_squares = possible_target_squares(state.nb_rows, state.nb_columns, x, y)
-        # Combinations of 2 possible squares
-        square_combinations = combinations(possible_squares, 2)
         # No split moves
         this_square_moves += [[(x, y, nb_units, target_x, target_y)] for target_x, target_y in possible_squares]
-        # Split moves
-        split_possibilities = [(i, nb_units - i) for i in range(1, nb_units // 2 + 1)]
-        for split in split_possibilities:
-            this_square_moves += [
-                [(x, y, split[0], target_1[0], target_1[1]), (x, y, split[1], target_2[0], target_2[1])]
-                for target_1, target_2 in square_combinations]
+        if len(active_squares) < 2:
+            # Combinations of 2 possible squares
+            square_combinations = combinations(possible_squares, 2)
+            # Split moves
+            split_possibilities = [(i, nb_units - i) for i in range(1, nb_units // 2 + 1)]
+            for split in split_possibilities:
+                this_square_moves += [
+                    [(x, y, split[0], target_1[0], target_1[1]), (x, y, split[1], target_2[0], target_2[1])]
+                    for target_1, target_2 in square_combinations]
         square_moves.append(this_square_moves)
     possible_moves = list(map(merge, product(*square_moves)))
     return possible_moves

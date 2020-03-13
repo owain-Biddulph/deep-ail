@@ -16,7 +16,7 @@ def evaluate(state: State) -> float:
     all_occupied_tile_other = []
     race_pop = 0
     adverse_pop = 0
-    ponderation = [1, 1]
+    ponderation = [4, 1]
 
     for x in range(state.nb_columns):
         for y in range(state.nb_rows):
@@ -47,7 +47,7 @@ def simple_score(state: State, all_occupied_tile_us: List[List[int]], all_occupi
     """
     # all_occupied_tile assumed to be with format : [x_position, y_position, number]
     if ponderation is None:
-        ponderation = [1, 1]
+        ponderation = [4, 1]
     if enemy_population == 0:
         return math.inf
     current_state_score: float = our_population - enemy_population
@@ -55,10 +55,9 @@ def simple_score(state: State, all_occupied_tile_us: List[List[int]], all_occupi
     potential_score: int = 0
     for tile_1 in all_occupied_tile_us:
         for tile_2 in all_occupied_tile_other:
-            distance_factor = 1 / utils.distance(tile_1, tile_2)
+            distance_factor = 1 / utils.distance(tile_1[0:2], tile_2[0:2])
             potential_score += distance_factor * tile_score(
                 tile_1[2], tile_2[2], state.board[tile_2[0]][tile_2[1]][0])
-
     score: float = ponderation[0] * current_state_score + ponderation[1] * potential_score
     return score
 

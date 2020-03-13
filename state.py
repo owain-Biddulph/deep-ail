@@ -137,6 +137,8 @@ class State:
             # No unit in (x,y). Settlement of n units.
             self.board[x, y, 1] = n
             self.board[x, y, 0] = species_to_add
+        elif self.board[x, y, 0] == species_to_add:
+            self.board[x, y, 1] += n
         else:
             # If the outcome is certain, return that, otherwise return a loss
             win_probability = utils.win_probability(n, self.board[x, y, 1], self.board[x, y, 0])
