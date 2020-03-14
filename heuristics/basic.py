@@ -17,7 +17,7 @@ def evaluate(state: State, maximizing_player: bool) -> float:
     all_occupied_tile_human = []
     race_pop = 0
     adverse_pop = 0
-    ponderation = [4, 1, 1]
+    ponderation = [10, 1, 1]
 
     for x in range(state.nb_columns):
         for y in range(state.nb_rows):
@@ -51,7 +51,7 @@ def simple_score(state: State, all_occupied_tile_us: List[List[int]], all_occupi
     """
     # all_occupied_tile assumed to be with format : [x_position, y_position, number]
     if ponderation is None:
-        ponderation = [4, 1, 1]
+        ponderation = [10, 1, 1]
     if enemy_population == 0:
         return math.inf
     if our_population == 0:
