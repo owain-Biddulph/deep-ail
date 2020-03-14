@@ -20,7 +20,7 @@ def win_probability(attack_troops: int, defense_troops: int, defense_type: int) 
     else:
         if attack_troops >= 1.5 * defense_troops:
             return 1
-        elif defense_troops >= 1.5 * defense_troops:
+        elif defense_troops >= 1.5 * attack_troops:
             return 0
         else:
             return random_battle_win_probability(attack_troops, defense_troops)
@@ -92,9 +92,8 @@ def battle_simulation(species_1_units: int, species_1_type: int, species_2_units
     :param species_2_type: int, species 2 type
     :return: tuple, battle outcome, winning species type and number of remaining units
     """
-    if ((species_2_type == 1) & (species_1_units < species_2_units)) | (
-            (species_2_type != 1) & (species_1_units < 1.5 * species_2_units)):
-
+    if ((species_2_type == 1) and (species_1_units < species_2_units)) or ((species_2_type != 1) and (
+            species_1_units < 1.5 * species_2_units) and species_2_units < 1.5 * species_1_units):
         p = random_battle_win_probability(species_1_units, species_2_units)
         # If species 1 wins
         if p >= np.random.random():
@@ -108,8 +107,11 @@ def battle_simulation(species_1_units: int, species_1_type: int, species_2_units
         else:
             winner = species_2_type
             # Every winner's unit has a probability 1-p of surviving
-            remaining_units = np.random.binomial(species_2_units, 1-p)
+            remaining_units = np.random.binomial(species_2_units, 1 - p)
     else:
         winner = species_1_type if species_1_units >= species_2_units else species_2_type
-        remaining_units = species_1_units + (species_2_type == 1) * species_2_units
+        if winner == species_1_type:
+            remaining_units = species_1_units + (species_2_type == 1) * species_2_units
+        else:
+            remaining_units = species_2_units
     return winner, remaining_units

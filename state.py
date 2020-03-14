@@ -132,12 +132,13 @@ class State:
                     # on cherche les cases à enlever s'il y en a
 
     def __add_unit(self, n, x, y, species_to_add):
-        # TODO: Will need to change this when we can split
         # Add n units in (x,y) position.
         if self.board[x, y, 0] == 0:
             # No unit in (x,y). Settlement of n units.
             self.board[x, y, 1] = n
             self.board[x, y, 0] = species_to_add
+        elif self.board[x, y, 0] == species_to_add:
+            self.board[x, y, 1] += n
         else:
             # If the outcome is certain, return that, otherwise return a loss
             win_probability = utils.win_probability(n, self.board[x, y, 1], self.board[x, y, 0])
