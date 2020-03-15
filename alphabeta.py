@@ -53,6 +53,19 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool)
         return current_value, best_move
 
 
+def possibly_worth_splitting(friendly_squares: List[Tuple[int, int]],
+                             other_squares: List[Tuple[int, int]]) -> bool:
+    """ Checks if there is any point splitting at all given the number of friendly tiles and other occupied tiles
+
+    :param friendly_squares: The squares occupied by the species who’s turn it is
+    :param other_squares: The squares occupied by humans or the other species
+    :return: bool, True if we have fewer squares, False otherwise
+    """
+    if len(friendly_squares) >= len(other_squares):
+        return False
+    return True
+
+
 def all_possible_moves(state: State, species: int) -> List[List[Tuple[int, int, int, int, int]]]:
     """Returns all the possible moves, limits number of splits to 2 in total
 
@@ -60,31 +73,21 @@ def all_possible_moves(state: State, species: int) -> List[List[Tuple[int, int, 
     :param species:
     :return:
     """
-    active_squares = list(zip(*np.where(state.board[:, :, 0] == species)))
-    human_squares = list(zip(*np.where(state.board[:, :, 0] == 1)))
-    enemy_species = 2 if species == 3 else 3
-    enemy_squares = list(zip(*np.where(state.board[:, :, 0] == enemy_species)))
-    adverse_squares = human_squares + enemy_squares
+    active_squares: List[Tuple[int, int]] = utils.species_coordinates(state, species)
+    human_squares: List[Tuple[int, int]] = utils.species_coordinates(state, 1)
+    enemy_species: int = 2 if species == 3 else 3
+    enemy_squares: List[Tuple[int, int]] = utils.species_coordinates(state, enemy_species)
+    adverse_squares: List[Tuple[int, int]] = human_squares + enemy_squares
 
-    adverse_squares_content = []
-    active_squares_content = []
-    for coordinates in adverse_squares:
-        temp = [coordinates[0], coordinates[1]]
-        temp.extend(state.board[coordinates[0], coordinates[1]])
-        adverse_squares_content.append(temp)
-    adverse_squares_content = np.array(adverse_squares_content)
+    adverse_squares_content = utils.ordered_board_content_for_given_coordinates(state, adverse_squares)
+    active_squares_content = utils.ordered_board_content_for_given_coordinates(state, active_squares)
 
-    # for coordinates in active_squares:
-    #     temp = [coordinates[0], coordinates[1]]
-    #     temp.extend(state.board[coordinates[0], coordinates[1]])
-    #     active_squares_content.append(temp)
-    # active_squares_content = np.array(active_squares_content)
-
+    worth_splitting: bool = possibly_worth_splitting(active_squares, adverse_squares)
     square_moves = []
-    for square in active_squares:
+    for square_content in active_squares_content:
         this_square_moves = []
-        x, y = square
-        nb_units = state.board[x, y, 1]
+        x, y = square_content[:2]
+        nb_units = square_content[3]
 
         #  Legal squares
         possible_squares = possible_target_squares(
@@ -98,29 +101,23 @@ def all_possible_moves(state: State, species: int) -> List[List[Tuple[int, int, 
                               for target_x, target_y in possible_squares]
 
         # Split moves
-        a = len(active_squares)
-        b = len(adverse_squares)
-
-        if a < b:
-            adverse_squares_content = adverse_squares_content[adverse_squares_content[:, -1].argsort(
-            )]
+        if worth_splitting:
             min_size = adverse_squares_content[0, -1]
             second_min_size = adverse_squares_content[1, -1]
 
-            tile = [x, y, species, nb_units]
-            half_size = int(np.ceil(tile[3]/2))
+            half_size = int(np.ceil(square_content[3] / 2))
             # No point splitting if there are no enemy squares with fewer units than the 2 split sizes
-            if min_size + second_min_size <= tile[3]:
-                for i in range(min_size, half_size + (tile[3] % 2 == 0)*1):
+            if min_size + second_min_size <= square_content[3]:
+                for i in range(min_size, half_size + (square_content[3] % 2 == 0) * 1):
                     size_first_split = i
-                    size_second_split = tile[3]-i
+                    size_second_split = square_content[3] - i
                     # size_second_split is always the max
                     adv_tiles = adverse_squares_content[adverse_squares_content[:, -1]
                                                         <= size_second_split]
                     if len(adv_tiles) < 2:
                         break
                     for adv_tile in adv_tiles:
-                        np.append(adv_tile, utils.distance(tile[:2], adv_tile[:2]))
+                        np.append(adv_tile, utils.distance(square_content[:2], adv_tile[:2]))
 
                     adv_tiles = adv_tiles[adv_tiles[:, -1].argsort()]
 
@@ -139,60 +136,60 @@ def all_possible_moves(state: State, species: int) -> List[List[Tuple[int, int, 
                     if target_first_split[0] > x:
                         if target_first_split[1] > y:
                             result.append(
-                                (x, y, size_first_split, x+1, y+1))
+                                (x, y, size_first_split, x + 1, y + 1))
                         elif target_first_split[1] < y:
                             result.append(
-                                (x, y, size_first_split, x+1, y-1))
+                                (x, y, size_first_split, x + 1, y - 1))
                         else:
-                            result.append((x, y, size_first_split, x+1, y))
+                            result.append((x, y, size_first_split, x + 1, y))
 
                     elif target_first_split[0] < x:
                         if target_first_split[1] > y:
                             result.append(
-                                (x, y, size_first_split, x-1, y+1))
+                                (x, y, size_first_split, x - 1, y + 1))
                         elif target_first_split[1] < y:
                             result.append(
-                                (x, y, size_first_split, x-1, y-1))
+                                (x, y, size_first_split, x - 1, y - 1))
                         else:
-                            result.append((x, y, size_first_split, x-1, y))
+                            result.append((x, y, size_first_split, x - 1, y))
 
                     else:
                         if target_first_split[1] > y:
-                            result.append((x, y, size_first_split, x, y+1))
+                            result.append((x, y, size_first_split, x, y + 1))
                         elif target_first_split[1] < y:
-                            result.append((x, y, size_first_split, x, y-1))
+                            result.append((x, y, size_first_split, x, y - 1))
                         else:
                             result.append((x, y, size_first_split, x, y))
 
                     if target_second_split[0] > x:
                         if target_second_split[1] > y:
                             result.append(
-                                (x, y, size_second_split, x+1, y+1))
+                                (x, y, size_second_split, x + 1, y + 1))
                         elif target_second_split[1] < y:
                             result.append(
-                                (x, y, size_second_split, x+1, y-1))
+                                (x, y, size_second_split, x + 1, y - 1))
                         else:
                             result.append(
-                                (x, y, size_second_split, x+1, y))
+                                (x, y, size_second_split, x + 1, y))
 
                     elif target_second_split[0] < x:
                         if target_second_split[1] > y:
                             result.append(
-                                (x, y, size_second_split, x-1, y+1))
+                                (x, y, size_second_split, x - 1, y + 1))
                         elif target_second_split[1] < y:
                             result.append(
-                                (x, y, size_second_split, x-1, y-1))
+                                (x, y, size_second_split, x - 1, y - 1))
                         else:
                             result.append(
-                                (x, y, size_second_split, x-1, y))
+                                (x, y, size_second_split, x - 1, y))
 
                     else:
                         if target_second_split[1] > y:
                             result.append(
-                                (x, y, size_second_split, x, y+1))
+                                (x, y, size_second_split, x, y + 1))
                         elif target_second_split[1] < y:
                             result.append(
-                                (x, y, size_second_split, x, y-1))
+                                (x, y, size_second_split, x, y - 1))
                         else:
                             result.append((x, y, size_second_split, x, y))
 
