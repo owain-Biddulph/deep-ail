@@ -1,5 +1,4 @@
 from typing import Tuple, List
-import time
 from state import State
 from alphabeta import alphabeta
 from math import inf
