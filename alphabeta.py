@@ -105,7 +105,8 @@ def all_possible_moves(state: State, moving_species: Species, other_species: Spe
         # No split moves
         this_square_moves += [[(x, y, nb_units, target_x, target_y)]
                               for target_x, target_y in possible_squares]
-        possible_moves.extend(this_square_moves)
+        if len(human_squares) == 0:
+            possible_moves.extend(this_square_moves)
 
         # Split moves
         if worth_splitting:
@@ -202,7 +203,8 @@ def all_possible_moves(state: State, moving_species: Species, other_species: Spe
 
                     this_square_moves.append(result)
         square_moves.append(this_square_moves)
-        possible_moves.extend(this_square_moves)
+        if len(human_squares) == 0:
+            possible_moves.extend(this_square_moves)
     possible_moves += list(map(merge, product(*square_moves)))
     t2 = time.time()
     possible_moves = remove_illegal_moves(possible_moves)
