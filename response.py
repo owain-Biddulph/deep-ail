@@ -9,8 +9,11 @@ def respond(state: State) -> Tuple[int, List]:
     moves = []
 
     state_copy = state.copy_state()
-
-    moves = alphabeta(state_copy, 3, -inf, inf, True)[1]
+    times = [0, 0, 0, 0]
+    _, moves, times = alphabeta(state_copy, 3, -inf, inf, True, times)
+    print("\n")
+    print(f"time to get moves: {times[0]}, time to remove illegal: {times[1]}")
+    print(f"time to score: {times[2]}, time to prep score: {times[3]}")
     return len(moves), moves
 
 

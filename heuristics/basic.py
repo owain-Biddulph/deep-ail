@@ -1,38 +1,24 @@
 import math
 from typing import List
+import time
 
 from state import State
 import utils
 
 
-def evaluate(state: State, maximizing_player: bool) -> float:
+def evaluate(state: State, maximizing_player: bool, times) -> float:
     """
     Evaluates the score of a given state
 
     :param state: State, state to evaluate
     :return: float, score
     """
-    all_occupied_tile_us = []
-    all_occupied_tile_opponent = []
-    all_occupied_tile_human = []
-    race_pop = 0
-    adverse_pop = 0
-
-    for x in range(state.nb_columns):
-        for y in range(state.nb_rows):
-            if state.board[x][y][0] == state.our_species:
-                all_occupied_tile_us += [[x, y, state.board[x][y][1]]]
-                race_pop += state.board[x][y][1]
-            elif state.board[x][y][0] == state.enemy_species:
-                all_occupied_tile_opponent += [[x, y, state.board[x][y][1]]]
-                adverse_pop += state.board[x][y][1]
-            elif state.board[x][y][0] == 1:
-                all_occupied_tile_human += [[x, y, state.board[x][y][1]]]
-    if len(all_occupied_tile_human) != 0:
-        return in_game_score(state, all_occupied_tile_us, all_occupied_tile_opponent, all_occupied_tile_human,
-                             race_pop, adverse_pop, maximizing_player, [10, 1, 1])
+    if len(state.human_species.tile_coordinates()) != 0:
+        return in_game_score(state, state.our_species.tile_contents(), state.enemy_species.tile_contents(),
+                             state.human_species.tile_contents(), state.our_species.units, state.enemy_species.units,
+                             maximizing_player, [10, 1, 1]), times
     else:
-        return end_game_score(all_occupied_tile_us, race_pop, adverse_pop)
+        return end_game_score(state.our_species.tile_contents(), state.our_species.units, state.enemy_species.units), times
 
 
 def in_game_score(state: State, all_occupied_tile_us: List[List[int]], all_occupied_tile_opponent: List[List[int]],

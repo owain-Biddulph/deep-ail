@@ -23,11 +23,13 @@ def play_game(strategy):
     # start of the game
     while True:
         client_socket.get_message()
+        t1 = time.time()
         state.update(client_socket.message)
-        t2 = time.time()
         if client_socket.message[0] == "upd":
+            t2 = time.time()
             nb_moves, moves = strategy(state)
             t3 = time.time()
+            print(f"time to update: {t2 - t1}")
             print(f"time to think about strategy : {t3 - t2}")
             client_socket.send_mov(nb_moves, moves)
 
