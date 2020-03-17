@@ -84,6 +84,7 @@ def all_possible_moves(state: State, species: int) -> List[List[Tuple[int, int, 
 
     worth_splitting: bool = possibly_worth_splitting(active_squares, adverse_squares)
     square_moves = []
+    possible_moves = []
     for square_content in active_squares_content:
         this_square_moves = []
         x, y = square_content[:2]
@@ -99,6 +100,7 @@ def all_possible_moves(state: State, species: int) -> List[List[Tuple[int, int, 
         # No split moves
         this_square_moves += [[(x, y, nb_units, target_x, target_y)]
                               for target_x, target_y in possible_squares]
+        possible_moves.extend(this_square_moves)
 
         # Split moves
         if worth_splitting:
@@ -198,8 +200,9 @@ def all_possible_moves(state: State, species: int) -> List[List[Tuple[int, int, 
 
                     this_square_moves.append(result)
         square_moves.append(this_square_moves)
-
-    possible_moves = list(map(merge, product(*square_moves)))
+        possible_moves.extend(this_square_moves)
+    possible_moves += list(map(merge, product(*square_moves)))
+    possible_moves = remove_illegal_moves(possible_moves)
     return possible_moves
 
 
@@ -250,3 +253,20 @@ def merge(lists: Tuple) -> List:
     for list_ in lists:
         output += list_
     return output
+
+
+def remove_illegal_moves(moves: List[List[Tuple]]) -> List[List[Tuple[int, int, int, int, int]]]:
+    legal_moves = []
+    for move in moves:
+        if len(move) == 1:
+            legal_moves.append(move)
+        else:
+            c = 0
+            for m1 in move:
+                for m2 in move:
+                    if m1[:2] == m2[3:]:
+                        c += 1
+                        break
+            if c == 0:
+                legal_moves.append(move)
+    return legal_moves
