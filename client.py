@@ -81,16 +81,16 @@ class ClientSocket:
             map = []
             nb = self._get_message(1)
             for i in range(nb):
-                map.append([self._get_message(1), self._get_message(1), self._get_message(1), self._get_message(1),
-                            self._get_message(1)])
+                map.append((self._get_message(1), self._get_message(1), self._get_message(1), self._get_message(1),
+                            self._get_message(1)))
             return ["map", map]
 
         if command == "UPD":
             upd = []
             nb = self._get_message(1)
             for i in range(nb):
-                upd.append([self._get_message(1), self._get_message(1), self._get_message(1), self._get_message(1),
-                            self._get_message(1)])
+                upd.append((self._get_message(1), self._get_message(1), self._get_message(1), self._get_message(1),
+                            self._get_message(1)))
             return ["upd", upd]
 
     def get_message(self) -> List:

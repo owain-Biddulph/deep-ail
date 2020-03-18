@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, List
 
 import numpy as np
 
@@ -115,3 +115,32 @@ def battle_simulation(species_1_units: int, species_1_type: int, species_2_units
         else:
             remaining_units = species_2_units
     return winner, remaining_units
+
+
+def species_coordinates(state, species: int) -> List[Tuple[int, int]]:
+    """ Returns a list of coordinates of all the squares occupied by a given species
+
+    :param state: The current state object
+    :param species: The species to look for
+    :return:
+    """
+    return list(zip(*np.where(state.board[:, :, 0] == species)))
+
+
+def ordered_board_content_for_given_coordinates(state, coordinate_list: List[Tuple[int, int]]
+                                                ) -> List[Tuple[int, int, int, int]]:
+    """ Returns the contents of the squares given a list of coordinates
+    :param state: The current state object
+    :param coordinate_list: List of coordinates
+    :return: List of tuples containing square contents, the format is [x, y, species type, unit count] ordered by count
+    """
+    contents = []
+    if len(coordinate_list) == 0:
+        return contents
+    for coordinates in coordinate_list:
+        temp = [coordinates[0], coordinates[1]]
+        temp.extend(state.board[coordinates[0], coordinates[1]])
+        contents.append(temp)
+    contents = np.array(contents)
+    contents = contents[contents[:, -1].argsort()]
+    return contents

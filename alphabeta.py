@@ -2,28 +2,33 @@ from itertools import combinations, product
 import numpy as np
 from typing import List, Tuple
 import math
+import time
 
-from state import State
+from state import State, Species
 from heuristics.basic import evaluate
 
 import utils
 
 
-def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool):
+def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool, times):
     if depth == 0:
-        return [evaluate(state, maximizing_player), None]
+        t1 = time.time()
+        eval, times = evaluate(state, maximizing_player, times)
+        t2 = time.time()
+        times[2] += t2 - t1
+        return eval, None, times
 
     if maximizing_player:
         current_value = -math.inf
-        possible_moves = all_possible_moves(state, state.our_species)
+        possible_moves, times = all_possible_moves(state, state.our_species, state.enemy_species, times)
         if possible_moves is None:
-            return [-math.inf, None]  # No more friendly units, we have lost
+            return -math.inf, None, times  # No more friendly units, we have lost
         best_move = None
         for move in possible_moves:
             child_state = state.copy_state()
-            child_state.next_state(move, state.our_species)
-            alphabeta_result = alphabeta(
-                child_state, depth - 1, alpha, beta, False)[0]
+            child_state.next_state(move, state.our_species.type)
+            alphabeta_result, _, times = alphabeta(
+                child_state, depth - 1, alpha, beta, False, times)
             if current_value < alphabeta_result:
                 current_value = alphabeta_result
                 best_move = move
@@ -31,18 +36,18 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool)
             if alpha >= beta:
                 break  # beta cut-off
 
-        return current_value, best_move
+        return current_value, best_move, times
     else:
         current_value = math.inf
-        possible_moves = all_possible_moves(state, state.enemy_species)
+        possible_moves, times = all_possible_moves(state, state.enemy_species, state.our_species, times)
         if possible_moves is None:
-            return [math.inf, None]  # No more enemy units, we have won
+            return math.inf, None, times  # No more enemy units, we have won
         best_move = None
         for move in possible_moves:
             child_state = state.copy_state()
-            child_state.next_state(move, state.enemy_species)
-            alphabeta_result = alphabeta(
-                child_state, depth - 1, alpha, beta, True)[0]
+            child_state.next_state(move, state.enemy_species.type)
+            alphabeta_result, _, times = alphabeta(
+                child_state, depth - 1, alpha, beta, True, times)
             if current_value > alphabeta_result:
                 current_value = alphabeta_result
                 best_move = move
@@ -50,88 +55,85 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool)
             beta = min(beta, current_value)
             if alpha >= beta:
                 break  # alpha cut-off
-        return current_value, best_move
+        return current_value, best_move, times
 
 
-def all_possible_moves(state: State, species: int) -> List[List[Tuple[int, int, int, int, int]]]:
+def possibly_worth_splitting(friendly_squares: List[Tuple[int, int]],
+                             other_squares: List[Tuple[int, int]]) -> bool:
+    """ Checks if there is any point splitting at all given the number of friendly tiles and other occupied tiles
+
+    :param friendly_squares: The squares occupied by the species who’s turn it is
+    :param other_squares: The squares occupied by humans or the other species
+    :return: bool, True if we have fewer squares, False otherwise
+    """
+    if len(friendly_squares) >= len(other_squares):
+        return False
+    return True
+
+
+def all_possible_moves(state: State, moving_species: Species, other_species: Species, times) -> List[
+    List[Tuple[int, int, int, int, int]]]:
     """Returns all the possible moves, limits number of splits to 2 in total
 
     :param state:
     :param species:
     :return:
     """
-    active_squares = list(zip(*np.where(state.board[:, :, 0] == species)))
-    human_squares = list(zip(*np.where(state.board[:, :, 0] == 1)))
-    enemy_species = 2 if species == 3 else 3
-    enemy_squares = list(zip(*np.where(state.board[:, :, 0] == enemy_species)))
-    adverse_squares = human_squares + enemy_squares
+    t1 = time.time()
+    moving_species_squares: List[Tuple[int, int]] = moving_species.tile_coordinates()
+    human_squares: List[Tuple[int, int]] = state.human_species.tile_coordinates()
+    other_species_squares: List[Tuple[int, int]] = other_species.tile_coordinates()
+    adverse_squares: List[Tuple[int, int]] = human_squares + other_species_squares
 
-    adverse_squares_content = []
-    active_squares_content = []
-    for coordinates in adverse_squares:
-        temp = [coordinates[0], coordinates[1]]
-        temp.extend(state.board[coordinates[0], coordinates[1]])
-        adverse_squares_content.append(temp)
-    adverse_squares_content = np.array(adverse_squares_content)
+    other_contents = other_species.tile_contents()
+    human_contents = state.human_species.tile_contents()
+    adverse_square_contents = sorted(other_contents + human_contents, key=lambda t: t[-1])
+    moving_species_squares_content = moving_species.tile_contents()
 
-    # for coordinates in active_squares:
-    #     temp = [coordinates[0], coordinates[1]]
-    #     temp.extend(state.board[coordinates[0], coordinates[1]])
-    #     active_squares_content.append(temp)
-    # active_squares_content = np.array(active_squares_content)
-
+    worth_splitting: bool = possibly_worth_splitting(moving_species_squares, adverse_squares)
     square_moves = []
-    for square in active_squares:
+    possible_moves = []
+    for square_content in moving_species_squares_content:
         this_square_moves = []
-        x, y = square
-        nb_units = state.board[x, y, 1]
+        x, y = square_content[:2]
+        nb_units = square_content[2]
 
         #  Legal squares
         possible_squares = possible_target_squares(
             state.nb_rows, state.nb_columns, x, y)
 
-        # Combinations of 2 possible squares
-        square_combinations = combinations(possible_squares, 2)
-
         # No split moves
         this_square_moves += [[(x, y, nb_units, target_x, target_y)]
                               for target_x, target_y in possible_squares]
+        if len(human_squares) == 0:
+            possible_moves.extend(this_square_moves)
 
         # Split moves
-        a = len(active_squares)
-        b = len(adverse_squares)
+        if worth_splitting:
+            min_size = adverse_square_contents[0][-1]
+            second_min_size = adverse_square_contents[1][-1]
 
-        if a < b:
-            adverse_squares_content = adverse_squares_content[adverse_squares_content[:, -1].argsort(
-            )]
-            min_size = adverse_squares_content[0, -1]
-            second_min_size = adverse_squares_content[1, -1]
-
-            tile = [x, y, species, nb_units]
-            half_size = int(np.ceil(tile[3]/2))
+            half_size = int(np.ceil(square_content[2] / 2))
             # No point splitting if there are no enemy squares with fewer units than the 2 split sizes
-            if min_size + second_min_size <= tile[3]:
-                for i in range(min_size, half_size + (tile[3] % 2 == 0)*1):
+            if min_size + second_min_size <= square_content[2]:
+                for i in range(min_size, half_size + (square_content[2] % 2 == 0) * 1):
                     size_first_split = i
-                    size_second_split = tile[3]-i
+                    size_second_split = square_content[2] - i
                     # size_second_split is always the max
-                    adv_tiles = adverse_squares_content[adverse_squares_content[:, -1]
-                                                        <= size_second_split]
+                    adv_tiles = [tile for tile in adverse_square_contents if tile[-1] <= size_second_split]
                     if len(adv_tiles) < 2:
                         break
                     for adv_tile in adv_tiles:
-                        np.append(adv_tile, utils.distance(tile[:2], adv_tile[:2]))
+                        np.append(adv_tile, utils.distance(square_content[:2], adv_tile[:2]))
 
-                    adv_tiles = adv_tiles[adv_tiles[:, -1].argsort()]
-
-                    if size_first_split >= adv_tiles[0, 3]:
-                        target_first_split = adv_tiles[0, :2]
-                        target_second_split = adv_tiles[1, :2]
+                    if size_first_split >= adv_tiles[0][2]:
+                        target_first_split = adv_tiles[0][:2]
+                        target_second_split = adv_tiles[1][:2]
                     else:
-                        target_second_split = adv_tiles[0, :2]
+                        target_second_split = adv_tiles[0][:2]
                         for j in range(1, len(adv_tiles)):
-                            if size_first_split >= adv_tiles[j, 3]:
-                                target_first_split = adv_tiles[0, :2]
+                            if size_first_split >= adv_tiles[j][2]:
+                                target_first_split = adv_tiles[0][2]
                                 break
 
                     result = []
@@ -139,60 +141,60 @@ def all_possible_moves(state: State, species: int) -> List[List[Tuple[int, int, 
                     if target_first_split[0] > x:
                         if target_first_split[1] > y:
                             result.append(
-                                (x, y, size_first_split, x+1, y+1))
+                                (x, y, size_first_split, x + 1, y + 1))
                         elif target_first_split[1] < y:
                             result.append(
-                                (x, y, size_first_split, x+1, y-1))
+                                (x, y, size_first_split, x + 1, y - 1))
                         else:
-                            result.append((x, y, size_first_split, x+1, y))
+                            result.append((x, y, size_first_split, x + 1, y))
 
                     elif target_first_split[0] < x:
                         if target_first_split[1] > y:
                             result.append(
-                                (x, y, size_first_split, x-1, y+1))
+                                (x, y, size_first_split, x - 1, y + 1))
                         elif target_first_split[1] < y:
                             result.append(
-                                (x, y, size_first_split, x-1, y-1))
+                                (x, y, size_first_split, x - 1, y - 1))
                         else:
-                            result.append((x, y, size_first_split, x-1, y))
+                            result.append((x, y, size_first_split, x - 1, y))
 
                     else:
                         if target_first_split[1] > y:
-                            result.append((x, y, size_first_split, x, y+1))
+                            result.append((x, y, size_first_split, x, y + 1))
                         elif target_first_split[1] < y:
-                            result.append((x, y, size_first_split, x, y-1))
+                            result.append((x, y, size_first_split, x, y - 1))
                         else:
                             result.append((x, y, size_first_split, x, y))
 
                     if target_second_split[0] > x:
                         if target_second_split[1] > y:
                             result.append(
-                                (x, y, size_second_split, x+1, y+1))
+                                (x, y, size_second_split, x + 1, y + 1))
                         elif target_second_split[1] < y:
                             result.append(
-                                (x, y, size_second_split, x+1, y-1))
+                                (x, y, size_second_split, x + 1, y - 1))
                         else:
                             result.append(
-                                (x, y, size_second_split, x+1, y))
+                                (x, y, size_second_split, x + 1, y))
 
                     elif target_second_split[0] < x:
                         if target_second_split[1] > y:
                             result.append(
-                                (x, y, size_second_split, x-1, y+1))
+                                (x, y, size_second_split, x - 1, y + 1))
                         elif target_second_split[1] < y:
                             result.append(
-                                (x, y, size_second_split, x-1, y-1))
+                                (x, y, size_second_split, x - 1, y - 1))
                         else:
                             result.append(
-                                (x, y, size_second_split, x-1, y))
+                                (x, y, size_second_split, x - 1, y))
 
                     else:
                         if target_second_split[1] > y:
                             result.append(
-                                (x, y, size_second_split, x, y+1))
+                                (x, y, size_second_split, x, y + 1))
                         elif target_second_split[1] < y:
                             result.append(
-                                (x, y, size_second_split, x, y-1))
+                                (x, y, size_second_split, x, y - 1))
                         else:
                             result.append((x, y, size_second_split, x, y))
 
@@ -201,9 +203,15 @@ def all_possible_moves(state: State, species: int) -> List[List[Tuple[int, int, 
 
                     this_square_moves.append(result)
         square_moves.append(this_square_moves)
-
-    possible_moves = list(map(merge, product(*square_moves)))
-    return possible_moves
+        if len(human_squares) == 0:
+            possible_moves.extend(this_square_moves)
+    possible_moves += list(map(merge, product(*square_moves)))
+    t2 = time.time()
+    possible_moves = remove_illegal_moves(possible_moves)
+    t3 = time.time()
+    times[0] += t2 - t1
+    times[1] += t3 - t2
+    return possible_moves, times
 
 
 def possible_target_squares(nb_rows: int, nb_columns: int, x: int, y: int) -> List[Tuple[int, int]]:
@@ -253,3 +261,20 @@ def merge(lists: Tuple) -> List:
     for list_ in lists:
         output += list_
     return output
+
+
+def remove_illegal_moves(moves: List[List[Tuple]]) -> List[List[Tuple[int, int, int, int, int]]]:
+    legal_moves = []
+    for move in moves:
+        if len(move) == 1:
+            legal_moves.append(move)
+        else:
+            c = 0
+            for m1 in move:
+                for m2 in move:
+                    if m1[:2] == m2[3:]:
+                        c += 1
+                        break
+            if c == 0:
+                legal_moves.append(move)
+    return legal_moves
