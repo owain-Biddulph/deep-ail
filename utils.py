@@ -144,3 +144,7 @@ def ordered_board_content_for_given_coordinates(state, coordinate_list: List[Tup
     contents = np.array(contents)
     contents = contents[contents[:, -1].argsort()]
     return contents
+
+
+def hash_array(array: np.ndarray) -> int:
+    return array.tobytes()
