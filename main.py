@@ -1,7 +1,9 @@
+import time
+
 from client import ClientSocket
+from heuristics.basic import Heuristic
 from state import State
 from response import respond
-import time
 
 
 def play_game(strategy):
@@ -21,15 +23,14 @@ def play_game(strategy):
     state.update(client_socket.message)
 
     # start of the game
+    heuristic = Heuristic()
     while True:
         client_socket.get_message()
-        t1 = time.time()
         state.update(client_socket.message)
         if client_socket.message[0] == "upd":
             t2 = time.time()
-            nb_moves, moves = strategy(state)
+            nb_moves, moves = strategy(state, heuristic)
             t3 = time.time()
-            print(f"time to update: {t2 - t1}")
             print(f"time to think about strategy : {t3 - t2}")
             client_socket.send_mov(nb_moves, moves)
 

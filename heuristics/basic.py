@@ -1,24 +1,34 @@
 import math
 from typing import List
-import time
+
 
 from state import State
 import utils
 
 
-def evaluate(state: State, maximizing_player: bool, times) -> float:
-    """
-    Evaluates the score of a given state
+class Heuristic:
+    def __init__(self):
+        self.cached_scores = {}
 
-    :param state: State, state to evaluate
-    :return: float, score
-    """
-    if len(state.human_species.tile_coordinates()) != 0:
-        return in_game_score(state, state.our_species.tile_contents(), state.enemy_species.tile_contents(),
-                             state.human_species.tile_contents(), state.our_species.units, state.enemy_species.units,
-                             maximizing_player, [10, 1, 1]), times
-    else:
-        return end_game_score(state.our_species.tile_contents(), state.our_species.units, state.enemy_species.units), times
+    def evaluate(self, state: State, maximizing_player: bool, times) -> float:
+        """
+        Evaluates the score of a given state
+
+        :param state: State, state to evaluate
+        :return: float, score
+        """
+        board_hash = utils.hash_array(state._board)
+        score = self.cached_scores.get(board_hash, None)
+        if score is None:
+            if len(state.human_species.tile_coordinates()) != 0:
+                score = in_game_score(state, state.our_species.tile_contents(), state.enemy_species.tile_contents(),
+                                      state.human_species.tile_contents(), state.our_species.units,
+                                      state.enemy_species.units, maximizing_player, [10, 1, 1]), times
+            else:
+                score = end_game_score(state.our_species.tile_contents(), state.our_species.units,
+                                       state.enemy_species.units), times
+            self.cached_scores[board_hash] = score
+        return score
 
 
 def in_game_score(state: State, all_occupied_tile_us: List[List[int]], all_occupied_tile_opponent: List[List[int]],

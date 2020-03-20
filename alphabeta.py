@@ -5,15 +5,14 @@ import math
 import time
 
 from state import State, Species
-from heuristics.basic import evaluate
 
 import utils
 
 
-def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool, times):
+def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool, heuristic, times):
     if depth == 0:
         t1 = time.time()
-        eval, times = evaluate(state, maximizing_player, times)
+        eval, times = heuristic.evaluate(state, maximizing_player, times)
         t2 = time.time()
         times[2] += t2 - t1
         return eval, None, times
@@ -28,7 +27,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
             child_state = state.copy_state()
             child_state.next_state(move, state.our_species.type)
             alphabeta_result, _, times = alphabeta(
-                child_state, depth - 1, alpha, beta, False, times)
+                child_state, depth - 1, alpha, beta, False, heuristic, times)
             if current_value < alphabeta_result:
                 current_value = alphabeta_result
                 best_move = move
@@ -47,7 +46,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
             child_state = state.copy_state()
             child_state.next_state(move, state.enemy_species.type)
             alphabeta_result, _, times = alphabeta(
-                child_state, depth - 1, alpha, beta, True, times)
+                child_state, depth - 1, alpha, beta, True, heuristic, times)
             if current_value > alphabeta_result:
                 current_value = alphabeta_result
                 best_move = move
@@ -99,8 +98,8 @@ def all_possible_moves(state: State, moving_species: Species, other_species: Spe
         nb_units = square_content[2]
 
         #  Legal squares
-        possible_squares = possible_target_squares(
-            state.nb_rows, state.nb_columns, x, y)
+        possible_squares = order_target_squares(state, possible_target_squares(
+            state.nb_rows, state.nb_columns, x, y), moving_species)
 
         # No split moves
         this_square_moves += [[(x, y, nb_units, target_x, target_y)]
@@ -212,6 +211,26 @@ def all_possible_moves(state: State, moving_species: Species, other_species: Spe
     times[0] += t2 - t1
     times[1] += t3 - t2
     return possible_moves, times
+
+
+def order_target_squares(state: State, target_squares: List[Tuple[int, int]], moving_species: int):
+    """Returns an ordered list of target squares to optimise the alpha-beta
+
+    :param state: Current state
+    :param target_squares: list of target squares as returned by the possible_target_squares function
+    :return: ordered target squares, human squares first, then our squares, then enemy squares, then empty squares
+    """
+    order = []
+    for square in target_squares:
+        if state._board[square[0], square[1], 0] == 1:
+            order.append((square, 1))
+        elif state._board[square[0], square[1], 0] == moving_species:
+            order.append((square, 2) )
+        elif state._board[square[0], square[1], 0] > 0:
+            order.append((square, 3))
+        else:
+            order.append((square, 4))
+    return list(map(lambda x: x[0], sorted(order, key=lambda x: x[-1])))
 
 
 def possible_target_squares(nb_rows: int, nb_columns: int, x: int, y: int) -> List[Tuple[int, int]]:
