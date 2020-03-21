@@ -8,6 +8,7 @@ import utils
 
 class Species:
     """Class to contain the a tile list, and unit count for a given species, with some handy methods"""
+
     def __init__(self, type_: Optional[int] = None, l: List[Tuple[int, int, int]] = None):
         self.tiles: defaultdict = defaultdict(lambda: 0)
         if l is not None:
@@ -56,6 +57,7 @@ class State:
         self.our_species: Optional[Species] = None
         self.enemy_species: Optional[Species] = None
         self.human_species: Optional[Species] = None
+        self.probability: float = 1
         if set_species:
             self.our_species = Species()
             self.enemy_species = Species()
@@ -147,7 +149,8 @@ class State:
             else:
                 self.enemy_species.add_units((x, y), n)
 
-        elif self.board[x, y, 0] == species_to_add:  # The target tile contains the same species, just add them
+        # The target tile contains the same species, just add them
+        elif self.board[x, y, 0] == species_to_add:
             self.board[x, y, 1] += n
             if species_to_add == 1:
                 self.human_species.add_units((x, y), n)
@@ -157,16 +160,20 @@ class State:
                 self.enemy_species.add_units((x, y), n)
         else:  # There is some form of battle
             # If the outcome is certain, return that, otherwise return a loss
-            win_probability = utils.win_probability(n, self.board[x, y, 1], self.board[x, y, 0])
+            win_probability = utils.win_probability(
+                n, self.board[x, y, 1], self.board[x, y, 0])
             if win_probability in [0, 1]:
                 (species, survivors) = utils.battle_simulation(n, species_to_add, self.board[x, y, 1],
                                                                self.board[x, y, 0])
                 # Species update depends on who was there originally
-                if self._board[x, y, 0] == species:  # If the species that was attacked wins (can’t be human)
+                # If the species that was attacked wins (can’t be human)
+                if self._board[x, y, 0] == species:
                     if species == self.our_species.type:
-                        self.our_species.remove_units((x, y), self._board[x, y, 1] - survivors)
+                        self.our_species.remove_units(
+                            (x, y), self._board[x, y, 1] - survivors)
                     elif species == self.enemy_species.type:
-                        self.enemy_species.remove_units((x, y), self._board[x, y, 1] - survivors)
+                        self.enemy_species.remove_units(
+                            (x, y), self._board[x, y, 1] - survivors)
                 else:  # If the attacking species wins (can’t be human)
                     if species == self.our_species.type:
                         self.our_species.add_units((x, y), survivors)
@@ -180,17 +187,31 @@ class State:
                             self.human_species.remove_tile((x, y))
                         else:
                             self.our_species.remove_tile((x, y))
-            else:  # If the outcome is not certain
-                survivors = np.random.binomial(self._board[x, y, 1], 1-win_probability)
-                if self._board[x, y, 0] == self.our_species.type:  # We are defending
-                    self.our_species.remove_tile((x, y))
-                    self.enemy_species.add_units((x, y), survivors)
-                    species = self.enemy_species.type
-                elif self._board[x, y, 0] == self.enemy_species.type:  # We are attacking the enemy
-                    self.enemy_species.remove_units((x, y), self.board[x, y, 1] - survivors)
-                    species = self.enemy_species.type
-                else:  # Humans are being attacked
-                    species = 1
+            else:  # If the outcome is not certain, we do as if we win but we diminish the probability of the state
+                survivors = np.random.binomial(
+                    self._board[x, y, 1], 1-win_probability)
+
+                # We are defending
+                if self._board[x, y, 0] == self.our_species.type:
+                    self.our_species.remove_units(
+                        (x, y), self.board[x, y, 1] - survivors)
+                    species = self.our_species.type
+                    self.probability = self.probability*(1-win_probability)
+
+                # We are attacking the enemy
+                elif self._board[x, y, 0] == self.enemy_species.type:
+                    self.enemy_species.remove_tile((x, y))
+                    self.our_species.add_units((x, y), survivors)
+                    species = self.our_species.type
+                    self.probability = self.probability*win_probability
+
+                # Humans are being attacked
+                else:
+                    self.human_species.remove_tile((x, y))
+                    self.our_species.add_units((x, y), survivors)
+                    species = self.our_species.type
+                    self.probability = self.probability*win_probability
+
             self.board[x, y, 1] = survivors
             self.board[x, y, 0] = species
 
@@ -216,17 +237,20 @@ class State:
     def copy_state(self):
         """
         return a copy of self as a new State object
-        
+
         :return: State object
         """
-        copy = State(("set", (self._nb_rows, self._nb_columns)), set_species=False)
+        copy = State(("set", (self._nb_rows, self._nb_columns)),
+                     set_species=False)
 
         copy._nb_rows = self._nb_rows
         copy._nb_columns = self._nb_columns
         copy._board = np.copy(self._board)
         copy._house_list = np.copy(self._house_list)
         copy._starting_square = np.copy(self._starting_square)
-        copy.our_species = Species(self.our_species.type, self.our_species.tile_contents())
-        copy.enemy_species = Species(self.enemy_species.type, self.enemy_species.tile_contents())
+        copy.our_species = Species(
+            self.our_species.type, self.our_species.tile_contents())
+        copy.enemy_species = Species(
+            self.enemy_species.type, self.enemy_species.tile_contents())
         copy.human_species = Species(1, self.human_species.tile_contents())
         return copy

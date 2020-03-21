@@ -28,7 +28,7 @@ class Heuristic:
                 score = end_game_score(state.our_species.tile_contents(), state.our_species.units,
                                        state.enemy_species.units), times
             self.cached_scores[board_hash] = score
-        return score
+        return score*state.probability
 
 
 def in_game_score(state: State, all_occupied_tile_us: List[List[int]], all_occupied_tile_opponent: List[List[int]],
@@ -36,7 +36,7 @@ def in_game_score(state: State, all_occupied_tile_us: List[List[int]], all_occup
                   enemy_population: int, maximizing_player: bool, ponderation=None) -> float:
     """
     Returns a score for a given state
-    
+
     :param state: State, state to evaluate
     :param all_occupied_tile_us: list, list of squares that are occupied by our units
     :param all_occupied_tile_opponent: list, list of squares that are occupied by opponent units
@@ -93,7 +93,8 @@ def in_game_score(state: State, all_occupied_tile_us: List[List[int]], all_occup
                 got_there_first = False
 
         if got_there_first:
-            another_score += 1/min_us * tile_score(first_to_reach[2], human[2], 1) * human[2]
+            another_score += 1/min_us * \
+                tile_score(first_to_reach[2], human[2], 1) * human[2]
         else:
             another_score += 0
     score: float = ponderation[0] * current_state_score + ponderation[1] * potential_score + ponderation[2]*another_score
