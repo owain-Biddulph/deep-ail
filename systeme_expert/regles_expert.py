@@ -16,17 +16,24 @@ Faits_precedents = {"position nous": None, "position ennemie": None, "distance":
 
 Faits = [Faits_actuels, Faits_precedents]
 
-Regles = [r_us_split, r_enemy_split, r_distance]
+distance = r_distance()
+variation_distance = r_variation_distance()
+strategy = r_strategy()
+
+Regles = [distance, variation_distance, strategy]
 
 def observation_faits(state, Faits):
     Faits[1], Faits[0] = Faits[0], Faits[1]
     Faits[0]["position nous"] = state.our_species.tile_contents
     Faits[0]["position ennemie"] = state.enemy_species.tile_contents
-    Faits[0]["distance"] =
     Faits[0]["nb unité nous"] = state.our_species.units
     Faits[0]["nb unité ennemie"] = state.ennemy_species.units
+    Faits[0]["diff nb unité"] = Faits[0]["nb unité nous"] - Faits[0]["nb unité ennemie"]
+    Faits[0]["variation diff nb unité"] = Faits[0]["diff nb unité"] - Faits[1]["diff nb unité"]
     Faits[0]["nb de groupe nous"] = len(species_coordinates(state, state.our_species))
+    Faits[0]["variation nb de groupe nous"] = Faits[0]["nb de groupe nous"] - Faits[1]["nb de groupe nous"]
     Faits[0]["nb de groupe ennemie"] = len(species_coordinates(state, state.enemy_species))
+    Faits[0]["variation nb de groupe ennemie"] = Faits[0]["nb de groupe ennemie"] - Faits[1]["nb de groupe ennemie"]
 
 
 class Regle:
@@ -41,55 +48,17 @@ class Regle:
             return False
 
         for premisse in self.premisses_actuels:
-            if faits[0][premisse] == None:
+            if faits[0][premisse] is None:
                 return False
 
         for premisse in self.premisses_precedents:
-            if faits[1][premisse] == None:
+            if faits[1][premisse] is None:
                 return False
 
         return True
 
     def appliquer(self, faits):
         pass
-
-
-class r_us_split(Regle):
-
-    def __init__(self):
-        self.appliquee = False
-        self.premisses_actuels = ["nb de groupe nous"]
-        self.premisses_precedents = ["nb de groupe nous"]
-
-    def appliquer(self, faits):
-        faits_actuels = faits[0]
-        faits_precedents = faits[1]
-        if faits_actuels["nb de groupe nous"] > faits_precedents["nb de groupe nous"]:
-            faits[0]["variation nb de groupe nous"] = faits_actuels["nb de groupe nous"] - faits_precedents["nb de groupe nous"]
-        elif faits_actuels["nb de groupe nous"] < faits_precedents["nb de groupe nous"]:
-            faits[0]["variation nb de groupe nous"] = faits_actuels["nb de groupe nous"] - faits_precedents["nb de groupe nous"]
-        else:
-            faits[0]["variation nb de groupe nous"] = 0
-        self.appliquee = True
-
-
-class r_enemy_split(Regle):
-
-    def __init__(self):
-        self.appliquee = False
-        self.premisses_actuels = ["nb de groupe ennemie"] ##ça sert à rien ce qu'on a fait là, on utilise jamais self.premisses actuels
-        self.premisses_precedents = ["nb de groupe ennemie"]
-
-    def appliquer(self, faits):
-        faits_actuels = faits[0]
-        faits_precedents = faits[1]
-        if faits_actuels["nb de groupe ennemie"] > faits_precedents["nb de groupe ennemie"] :
-            faits[0]["variation nb de groupe ennemie"] = faits_actuels["nb de groupe ennemie"] - faits_precedents["nb de groupe ennemie"]
-        elif  faits_actuels["nb de groupe ennemie"] < faits_precedents["nb de groupe ennemie"]:
-            faits[0]["variation nb de groupe ennemie"] = faits_actuels["nb de groupe ennemie"] - faits_precedents["nb de groupe ennemie"]
-        else:
-            faits[0]["variation nb de groupe ennemie"] = 0
-        self.appliquee = True
 
 
 class r_distance(Regle):
@@ -117,7 +86,7 @@ class r_variation_distance(Regle):
 
     def __init__(self):
         self.appliquee = False
-        self.premisses_actuels = ["distance"] ##a quoi ça sert ?
+        self.premisses_actuels = ["distance"]
         self.premisses_precedents = ["distance"]
 
     def appliquer(self, faits):
@@ -125,13 +94,30 @@ class r_variation_distance(Regle):
         faits_precedents = faits[1]
         
         if faits_actuels["distance"] != faits_precedents["distance"]:
-            faits["variation distance"] = faits_actuels["distance"] - faits_precedents["distance"]
+            faits["variation distance"] = abs(faits_actuels["distance"] - faits_precedents["distance"])
         else:
-            faits
-
-
+            faits["variation distance"] = 0
 
         self.appliquee = True
 
+
+class r_strategy(Regle):
+
+    def __init__(self):
+        self.appliquee = False
+        self.premisses_actuels = ["position nous", "position ennemie", "distance", "variation distance",
+                 "nb unité nous", "nb unité ennemie", "diff nb unité", "variation diff nb unité",
+                 "nb de groupe nous", "nb de groupe ennemie", "variation nb de groupe ennemie", "variation nb de groupe nous"]
+        self.premisses_precedents = ["position nous", "position ennemie", "distance", "variation distance",
+                 "nb unité nous", "nb unité ennemie", "diff nb unité", "variation diff nb unité",
+                 "nb de groupe nous", "nb de groupe ennemie", "variation nb de groupe ennemie", "variation nb de groupe nous"]
+
+    def appliquer(self, faits):
+        faits_actuels = faits[0]
+        faits_precedents = faits[1]
+
+        ##TODO
+
+        self.appliquee = True
 
 
