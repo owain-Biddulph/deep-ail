@@ -22,7 +22,7 @@ class Species:
     def tile_coordinates(self) -> List[Tuple[int, int]]:
         return list(self.tiles.keys())
 
-    def tile_contents(self) -> List[Tuple[int, int, int]]:
+    def tile_contents(self): #-> List[ [int, int, int]]:
         """Returns a list of the species tile coordinates and contents ordered incrementally by unit count"""
         return sorted(list(map(lambda x: (x[0][0], x[0][1], x[1]), self.tiles.items())), key=lambda x: x[-1])
 

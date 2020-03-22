@@ -102,25 +102,33 @@ def in_game_score(state: State, all_occupied_tile_us: List[List[int]], all_occup
     return score
 
 
-def end_game_score(all_occupied_tile_us: List[List[int]], our_population: int, enemy_population: int) -> float:
+def end_game_score(all_occupied_tile_us: List[List[int]],  our_population: int, enemy_population: int) -> float:
     """
     Returns a score for a given state
-
     :param all_occupied_tile_us: list, list of squares that are occupied by our units
     :param our_population: int, our total population
     :param enemy_population: int, enemy total population
     :return:
     """
     # all_occupied_tile assumed to be with format : [x_position, y_position, number]
-    ponderation = [10, 1]
+    ponderation = [100, 1, 1]
     if enemy_population == 0:
         return math.inf
     if our_population == 0:
         return -math.inf
     current_state_score: int = our_population - enemy_population
 
+    proximity_score: int = 0
+    l = 1
+    for i in range(len(all_occupied_tile_us)):
+        for j in range(i):
+            proximity_score += - utils.distance((all_occupied_tile_us[i][0], all_occupied_tile_us[i][1]),
+                                              (all_occupied_tile_us[j][0], all_occupied_tile_us[j][1]))
+            l += 1
+    proximity_score += proximity_score/l
+
     groups_score: int = -len(all_occupied_tile_us)
-    score: int = ponderation[0] * current_state_score + ponderation[1] * groups_score
+    score: int = ponderation[0] * current_state_score + ponderation[1] * groups_score + ponderation[2] * proximity_score
     return score
 
 
@@ -141,3 +149,74 @@ def tile_score(our_troops: int, their_troops: int, their_species: int) -> float:
         else:
             # approche prudente (si moins d'une chance sur deux de gagner ça devient négatif)
             return utils.win_probability(our_troops, their_troops, their_species) - 1
+
+
+def split_score(all_occupied_tile_us: List[List[int]], all_occupied_tile_opponent: List[List[int]], our_population: int, enemy_population: int) -> float:
+    """
+    Returns a score for a given state
+    :param all_occupied_tile_us: list, list of squares that are occupied by our units
+    :param our_population: int, our total population
+    :param enemy_population: int, enemy total population
+    :return:
+    """
+    # all_occupied_tile assumed to be with format : [x_position, y_position, number]
+    ponderation = [100, 1, 1]
+    if enemy_population == 0:
+        return math.inf
+    if our_population == 0:
+        return -math.inf
+    current_state_score: int = our_population - enemy_population
+
+    split_score: int = 0
+    l = 1
+    for tile_us in all_occupied_tile_us:
+        for tile_opponent in all_occupied_tile_opponent:
+            split_score += -abs( 4 - utils.distance((tile_us[0],tile_us[1]), (tile_opponent[0], tile_opponent[1])) )
+            l += 1
+    split_score += split_score/l
+
+    groups_score: int = len(all_occupied_tile_us)
+    score: int = ponderation[0] * current_state_score + ponderation[1] * groups_score + ponderation[2] * split_score
+    return score
+
+
+class HeuristicAgglo(Heuristic):
+
+    def __init__(self):
+        self.cached_scores = {}
+
+    def evaluate(self, state: State, maximizing_player: bool, times) -> float:
+        """
+        Evaluates the score of a given state
+        :param state: State, state to evaluate
+        :return: float, score
+        """
+        print("inside evaluate")
+        print(state, maximizing_player, times)
+        board_hash = utils.hash_array(state._board)
+        score = self.cached_scores.get(board_hash, None)
+
+        score = end_game_score(state.our_species.tile_contents(), state.our_species.units,
+                                       state.enemy_species.units)
+        self.cached_scores[board_hash] = score
+        return score, times
+
+
+class HeuristicSplit(Heuristic):
+
+    def __init__(self):
+        self.cached_scores = {}
+
+    def evaluate(self, state: State, maximizing_player: bool, times) -> float:
+        """
+        Evaluates the score of a given state
+        :param state: State, state to evaluate
+        :return: float, score
+        """
+        board_hash = utils.hash_array(state._board)
+        score = self.cached_scores.get(board_hash, None)
+        print("score", score)
+        score = split_score(state.our_species.tile_contents(), state.enemy_species.tile_contents(),
+                            state.our_species.units, state.enemy_species.units)
+        self.cached_scores[board_hash] = score
+        return score, times

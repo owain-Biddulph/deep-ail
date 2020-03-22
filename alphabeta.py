@@ -9,7 +9,7 @@ from state import State, Species
 import utils
 
 
-def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool, heuristic, time_message_received, times):
+def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool, heuristic, time_message_received, times, always_split: bool):
     if depth == 0:
         t1 = time.time()
         eval, times = heuristic.evaluate(state, maximizing_player, times)
@@ -19,7 +19,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
 
     if maximizing_player:
         current_value = -math.inf
-        possible_moves, times = all_possible_moves(state, state.our_species, state.enemy_species, times)
+        possible_moves, times = all_possible_moves(state, state.our_species, state.enemy_species, times, always_split)
         if possible_moves is None:
             return -math.inf, None, times  # No more friendly units, we have lost
         best_move = None
@@ -27,7 +27,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
             child_state = state.copy_state()
             child_state.next_state(move, state.our_species.type)
             alphabeta_result, _, _, times = alphabeta(
-                child_state, depth - 1, alpha, beta, False, heuristic, time_message_received, times)
+                child_state, depth - 1, alpha, beta, False, heuristic, time_message_received, times, always_split)
             if current_value < alphabeta_result:
                 current_value = alphabeta_result
                 best_move = move
@@ -43,7 +43,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
         return current_value, best_move, False, times
     else:
         current_value = math.inf
-        possible_moves, times = all_possible_moves(state, state.enemy_species, state.our_species, times)
+        possible_moves, times = all_possible_moves(state, state.enemy_species, state.our_species, times, always_split)
         if possible_moves is None:
             return math.inf, None, times  # No more enemy units, we have won
         best_move = None
@@ -51,7 +51,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
             child_state = state.copy_state()
             child_state.next_state(move, state.enemy_species.type)
             alphabeta_result, _, _, times = alphabeta(
-                child_state, depth - 1, alpha, beta, True, heuristic, time_message_received, times)
+                child_state, depth - 1, alpha, beta, True, heuristic, time_message_received, times, always_split)
             if current_value > alphabeta_result:
                 current_value = alphabeta_result
                 best_move = move
@@ -81,7 +81,7 @@ def possibly_worth_splitting(friendly_squares: List[Tuple[int, int]],
     return True
 
 
-def all_possible_moves(state: State, moving_species: Species, other_species: Species, times) -> List[
+def all_possible_moves(state: State, moving_species: Species, other_species: Species, times, always_split) -> List[
     List[Tuple[int, int, int, int, int]]]:
     """Returns all the possible moves, limits number of splits to 2 in total.
 
@@ -119,7 +119,7 @@ def all_possible_moves(state: State, moving_species: Species, other_species: Spe
             possible_moves.extend(this_square_moves)
 
         # Split moves
-        if worth_splitting:
+        if worth_splitting or always_split:
             min_size = adverse_square_contents[0][-1]
             second_min_size = adverse_square_contents[1][-1]
 
@@ -253,6 +253,10 @@ def possible_target_squares(nb_rows: int, nb_columns: int, x: int, y: int) -> Li
     :param y: int, row coordinate of original square
     :return: list of squares
     """
+    print("x", x)
+    print("y", y)
+    print(f"nb_rows {nb_rows}")
+    print(f"nb_colonnes {nb_columns}")
     if x == 0:
         if y == 0:
             possible_squares = [(x + 1, y + 1), (x + 1, y), (x, y + 1)]
@@ -262,6 +266,8 @@ def possible_target_squares(nb_rows: int, nb_columns: int, x: int, y: int) -> Li
             possible_squares = [(x + 1, y), (x + 1, y + 1),
                                 (x + 1, y - 1), (x, y + 1), (x, y - 1)]
     elif x == nb_columns - 1:
+        print("on atteint le bord pour x")
+
         if y == 0:
             possible_squares = [(x - 1, y + 1), (x - 1, y), (x, y + 1)]
         elif y == nb_rows - 1:
@@ -273,11 +279,13 @@ def possible_target_squares(nb_rows: int, nb_columns: int, x: int, y: int) -> Li
         possible_squares = [(x, y + 1), (x + 1, y + 1),
                             (x - 1, y + 1), (x + 1, y), (x - 1, y)]
     elif y == nb_rows - 1:
+        print("on atteint le bord pour y")
         possible_squares = [(x, y - 1), (x + 1, y - 1),
                             (x - 1, y - 1), (x + 1, y), (x - 1, y)]
     else:
         possible_squares = [(x, y + 1), (x, y - 1), (x + 1, y), (x - 1, y), (x + 1, y + 1), (x - 1, y - 1),
                             (x + 1, y - 1), (x - 1, y + 1)]
+    print("possible squares", possible_squares)
     return possible_squares
 
 

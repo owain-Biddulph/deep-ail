@@ -1,6 +1,25 @@
 from typing import Tuple, List
-
+import math
 import numpy as np
+
+
+def distance_min(state):
+    """input: state
+    output: la distance minimal entre un de nos groupes et les groupes ennemies"""
+
+    distances = []
+    groups = [None, None]
+    for position_nous in state.our_species.tile_coordinates():
+        distance_cette_unité = math.inf
+        for position_ennemie in state.enemy_species.tile_coordinates():
+            if distance(position_ennemie, position_nous) < distance_cette_unité:
+                distance_cette_unité = distance(position_ennemie, position_nous)
+                groups[0] = position_nous
+                groups[1] = position_ennemie
+
+        distances.append(distance_cette_unité)
+
+    return min(distances), groups
 
 
 def win_probability(attack_troops: int, defense_troops: int, defense_type: int) -> float:
