@@ -206,7 +206,8 @@ class r_strategy(Regle):
 
         # le cas ou on est un peu moins nombreux : il faut se battre à tout prix : si on peut les attaquer tant mieux
         # sinon, il faut tenter quand meme
-        elif faits_actuels["nb unité nous"] < faits_actuels["nb unité ennemie"] and 1.5 * faits_actuels["nb unité nous"] > faits_actuels["nb unité ennemie"]:
+        elif faits_actuels["nb unité nous"] < faits_actuels["nb unité ennemie"] and 1.5 * faits_actuels[
+            "nb unité nous"] > faits_actuels["nb unité ennemie"]:
             if not faits_actuels["refus de combat"]:
                 Faits[0]["strategy"] = "firstattack"
                 print(f"choosing {Faits[0]['strategy']}")
