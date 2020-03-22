@@ -3,7 +3,7 @@ import time
 from client import ClientSocket
 from heuristics.basic import Heuristic
 from state import State
-from response import respond
+from response import respond, respond_test
 
 
 def play_game(strategy):
@@ -36,4 +36,4 @@ def play_game(strategy):
 
 
 if __name__ == '__main__':
-    play_game(respond)
+    play_game(respond_test)

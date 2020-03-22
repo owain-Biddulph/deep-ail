@@ -242,6 +242,10 @@ def possible_target_squares(nb_rows: int, nb_columns: int, x: int, y: int) -> Li
     :param y: int, row coordinate of original square
     :return: list of squares
     """
+    print("x", x)
+    print("y", y)
+    print(f"nb_rows {nb_rows}")
+    print(f"nb_colonnes {nb_columns}")
     if x == 0:
         if y == 0:
             possible_squares = [(x + 1, y + 1), (x + 1, y), (x, y + 1)]
@@ -251,6 +255,8 @@ def possible_target_squares(nb_rows: int, nb_columns: int, x: int, y: int) -> Li
             possible_squares = [(x + 1, y), (x + 1, y + 1),
                                 (x + 1, y - 1), (x, y + 1), (x, y - 1)]
     elif x == nb_columns - 1:
+        print("on atteint le bord pour x")
+
         if y == 0:
             possible_squares = [(x - 1, y + 1), (x - 1, y), (x, y + 1)]
         elif y == nb_rows - 1:
@@ -262,11 +268,13 @@ def possible_target_squares(nb_rows: int, nb_columns: int, x: int, y: int) -> Li
         possible_squares = [(x, y + 1), (x + 1, y + 1),
                             (x - 1, y + 1), (x + 1, y), (x - 1, y)]
     elif y == nb_rows - 1:
+        print("on atteint le bord pour y")
         possible_squares = [(x, y - 1), (x + 1, y - 1),
                             (x - 1, y - 1), (x + 1, y), (x - 1, y)]
     else:
         possible_squares = [(x, y + 1), (x, y - 1), (x + 1, y), (x - 1, y), (x + 1, y + 1), (x - 1, y - 1),
                             (x + 1, y - 1), (x - 1, y + 1)]
+    print("possible squares", possible_squares)
     return possible_squares
 
 

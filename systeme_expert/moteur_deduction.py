@@ -1,4 +1,5 @@
 from systeme_expert.regles_expert import Regles, Faits
+from strategies import FirstAttack
 
 def chainage(F, R):
 
@@ -14,6 +15,9 @@ def chainage(F, R):
         for regle in regles_applicables:
             regle.appliquer(F)
 
+    if Faits[0]["strategy"] == "firstattack":
+        strat = FirstAttack()
+        return strat
 
 
 
