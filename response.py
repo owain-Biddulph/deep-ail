@@ -15,7 +15,6 @@ class GlobalStrategy:
         if len(state.human_species.tile_coordinates()) == 0:
             # no more humans, switch to expert system
             return self.respond_with_expert_system(state, time_message_received)
-
         else:
             return self.respond_with_alphabeta(state, time_message_received)
 

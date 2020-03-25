@@ -49,7 +49,7 @@ def in_game_score(state: State, all_occupied_tile_us: List[List[int]], all_occup
     """
     # all_occupied_tile assumed to be with format : [x_position, y_position, number]
     if ponderation is None:
-        ponderation = [10, 1, 1]
+        ponderation = [100, 1, 1]
     if enemy_population == 0:
         return math.inf
     if our_population == 0:
@@ -129,6 +129,38 @@ def end_game_score(all_occupied_tile_us: List[List[int]],  our_population: int, 
 
     groups_score: int = -len(all_occupied_tile_us)
     score: int = ponderation[0] * current_state_score + ponderation[1] * groups_score + ponderation[2] * proximity_score
+
+    return score
+
+
+def split_score(all_occupied_tile_us: List[List[int]], all_occupied_tile_opponent: List[List[int]], our_population: int, enemy_population: int) -> float:
+    """
+    Returns a score for a given state
+
+    :param all_occupied_tile_us: list, list of squares that are occupied by our units
+    :param our_population: int, our total population
+    :param enemy_population: int, enemy total population
+    :return:
+    """
+    # all_occupied_tile assumed to be with format : [x_position, y_position, number]
+    ponderation = [100, 1, 1]
+    if enemy_population == 0:
+        return math.inf
+    if our_population == 0:
+        return -math.inf
+    current_state_score: int = our_population - enemy_population
+
+    split_score: int = 0
+    l = 1
+    for tile_us in range(len(all_occupied_tile_us)):
+        for tile_opponent in range(len(all_occupied_tile_opponent)):
+            split_score += -abs(4- utils.distance((tile_us[0], tile_us[1]),
+                                          (tile_opponent[0], tile_opponent[1])))
+            l += 1
+    split_score += split_score/l
+
+    groups_score: int = len(all_occupied_tile_us)
+    score: int = ponderation[0] * current_state_score + ponderation[1] * groups_score + ponderation[2] * split_score
     return score
 
 
@@ -188,11 +220,13 @@ class HeuristicAgglo(Heuristic):
     def evaluate(self, state: State, maximizing_player: bool, times) -> float:
         """
         Evaluates the score of a given state
+
         :param state: State, state to evaluate
         :return: float, score
         """
         print("inside evaluate")
         print(state, maximizing_player, times)
+
         board_hash = utils.hash_array(state._board)
         score = self.cached_scores.get(board_hash, None)
 
@@ -200,6 +234,7 @@ class HeuristicAgglo(Heuristic):
                                        state.enemy_species.units)
         self.cached_scores[board_hash] = score
         return score, times
+
 
 
 class HeuristicSplit(Heuristic):
@@ -210,6 +245,7 @@ class HeuristicSplit(Heuristic):
     def evaluate(self, state: State, maximizing_player: bool, times) -> float:
         """
         Evaluates the score of a given state
+
         :param state: State, state to evaluate
         :return: float, score
         """
@@ -220,3 +256,4 @@ class HeuristicSplit(Heuristic):
                             state.our_species.units, state.enemy_species.units)
         self.cached_scores[board_hash] = score
         return score, times
+

@@ -2,8 +2,10 @@ import utils
 from alphabeta import possible_target_squares, alphabeta
 import math
 import time
+
 from heuristics.basic import HeuristicAgglo, HeuristicSplit
 from math import inf
+
 
 class Strategy:
 
@@ -84,4 +86,3 @@ class SplitStrategy(Strategy):
         if reduce_depth:
             self.alphabeta_depth -= 1
         return moves
-
