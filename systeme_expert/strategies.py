@@ -2,6 +2,9 @@ import utils
 from alphabeta import possible_target_squares
 import math
 import time
+from alphabeta import alphabeta
+from heuristics.basic import HeuristicAgglo, HeuristicSplit
+
 
 class Strategy:
 
@@ -56,6 +59,22 @@ class StraightAttack(Strategy):
         return move
 
 
+class AggloStrategy(Strategy):
+
+    def play(self, state):
+        times = [0, 0, 0]
+        heuristic = HeuristicAgglo
+        state_copy = state.copy_state()
+        _, moves, times = alphabeta(state_copy, 3, -math.inf, math.inf, True, heuristic, times)
+
+
+class SplitStrategy(Strategy):
+
+    def play(self, state):
+        times = [0, 0, 0]
+        heuristic = HeuristicSplit
+        state_copy = state.copy_state()
+        _, moves, times = alphabeta(state_copy, 3, -math.inf, math.inf, True, heuristic, times)
 
 
 

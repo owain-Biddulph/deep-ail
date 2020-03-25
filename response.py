@@ -2,8 +2,9 @@ from typing import Tuple, List
 from state import State
 from alphabeta import alphabeta
 from math import inf
-from systeme_expert.moteur_deduction import chainage
-from systeme_expert.regles_expert import Faits, Regles
+#from systeme_expert.moteur_deduction import chainage
+#from systeme_expert.regles_expert import Faits, Regles
+from systeme_expert.strategies import AggloStrategy, SplitStrategy
 
 
 def respond(state: State, heuristic) -> Tuple[int, List]:
@@ -15,9 +16,11 @@ def respond(state: State, heuristic) -> Tuple[int, List]:
     # print(f"time to score: {times[2]}")
     return len(moves), moves
 
+
 def respond_systeme_expert(state: State, heuristic) -> Tuple[int, List]:
     state_copy = state.copy_state()
-    strategy = chainage(Faits, Regles)
+    strategy = SplitStrategy()
+    #strategy = chainage(Faits, Regles)
     moves = strategy.play(state_copy)
     # print("\n")
     # print(f"time to get moves: {times[0]}, time to remove illegal: {times[1]}")

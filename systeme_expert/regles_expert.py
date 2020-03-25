@@ -5,20 +5,20 @@ import math
 ## nombre de groupe d'unité nous/ennemie, différence du nombre de groupe, variation de cette différence
 
 Faits_actuels = {"position nous": None, "position ennemie": None, "distance": None, "variation distance": None,
-                 "nb unité nous": None, "nb unité ennemie": None, "diff nb unité": None, "variation diff nb unité": None
-                 "nb de groupe nous": None, "nb de groupe ennemie": None, "variation nb de groupe ennemie": None, "variation nb de groupe nous": None
+                 "nb unité nous": None, "nb unité ennemie": None, "diff nb unité": None, "variation diff nb unité": None,
+                 "nb de groupe nous": None, "nb de groupe ennemie": None, "variation nb de groupe ennemie": None, "variation nb de groupe nous": None,
                  "strategy": "firstattack"}
 
 Faits_precedents = {"position nous": None, "position ennemie": None, "distance": None, "variation distance": None,
-                 "nb unité nous": None, "nb unité ennemie": None, "diff nb unité": None, "variation diff nb unité": None
+                 "nb unité nous": None, "nb unité ennemie": None, "diff nb unité": None, "variation diff nb unité": None,
                  "nb de groupe nous": None, "nb de groupe ennemie": None, "variation nb de groupe ennemie": None, "variation nb de groupe nous": None,
                     "strategy": None}
 
 Faits = [Faits_actuels, Faits_precedents]
 
-distance = r_distance()
-variation_distance = r_variation_distance()
-strategy = r_strategy()
+distance = r_distance
+variation_distance = r_variation_distance
+strategy = r_strategy
 
 Regles = [distance, variation_distance, strategy]
 

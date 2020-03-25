@@ -1,9 +1,9 @@
 import time
 
 from client import ClientSocket
-from heuristics.basic import Heuristic
+from heuristics.basic import HeuristicSplit
 from state import State
-from response import respond, respond_test
+from response import respond_systeme_expert
 
 
 def play_game(strategy):
@@ -23,7 +23,7 @@ def play_game(strategy):
     state.update(client_socket.message)
 
     # start of the game
-    heuristic = Heuristic()
+    heuristic = HeuristicSplit()
     while True:
         client_socket.get_message()
         state.update(client_socket.message)
@@ -36,4 +36,4 @@ def play_game(strategy):
 
 
 if __name__ == '__main__':
-    play_game(respond_test)
+    play_game(respond_systeme_expert)
