@@ -121,7 +121,7 @@ def end_game_score(all_occupied_tile_us: List[List[int]],  our_population: int, 
     l = 1
     for i in range(len(all_occupied_tile_us)):
         for j in range(i):
-            proximity_score += utils.distance((all_occupied_tile_us[i][0], all_occupied_tile_us[i][1]),
+            proximity_score += - utils.distance((all_occupied_tile_us[i][0], all_occupied_tile_us[i][1]),
                                               (all_occupied_tile_us[j][0], all_occupied_tile_us[j][1]))
             l += 1
     proximity_score += proximity_score/l
