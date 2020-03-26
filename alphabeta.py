@@ -52,6 +52,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
             child_state.next_state(move, state.enemy_species.type)
             alphabeta_result, _, _, times = alphabeta(
                 child_state, depth - 1, alpha, beta, True, heuristic, time_message_received, times, always_split)
+
             if current_value > alphabeta_result:
                 current_value = alphabeta_result
                 best_move = move
@@ -66,6 +67,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
                     best_move = move
                 return current_value, best_move, True, times
         return current_value, best_move, False, times
+
 
 
 def possibly_worth_splitting(friendly_squares: List[Tuple[int, int]],

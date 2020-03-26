@@ -223,3 +223,4 @@ distance_instance = r_distance()
 refus_combat_instance = r_refus_combat()
 strategy_instance = r_strategy()
 Regles = [distance_instance, refus_combat_instance, strategy_instance]
+

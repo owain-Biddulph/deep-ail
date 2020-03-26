@@ -152,10 +152,9 @@ def split_score(all_occupied_tile_us: List[List[int]], all_occupied_tile_opponen
 
     split_score: int = 0
     l = 1
-    for tile_us in range(len(all_occupied_tile_us)):
-        for tile_opponent in range(len(all_occupied_tile_opponent)):
-            split_score += -abs(4- utils.distance((tile_us[0], tile_us[1]),
-                                          (tile_opponent[0], tile_opponent[1])))
+    for tile_us in all_occupied_tile_us:
+        for tile_opponent in all_occupied_tile_opponent:
+            split_score += -abs( 4 - utils.distance((tile_us[0],tile_us[1]), (tile_opponent[0], tile_opponent[1])) )
             l += 1
     split_score += split_score/l
 
