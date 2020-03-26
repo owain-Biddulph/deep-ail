@@ -16,11 +16,9 @@ Faits_precedents = {"position nous": None, "position ennemie": None, "distance":
 
 Faits = [Faits_actuels, Faits_precedents]
 
-distance = r_distance
-variation_distance = r_variation_distance
-strategy = r_strategy
 
-Regles = [distance, variation_distance, strategy]
+
+
 
 def observation_faits(state, Faits):
     Faits[1], Faits[0] = Faits[0], Faits[1]
@@ -119,5 +117,12 @@ class r_strategy(Regle):
         ##TODO
 
         self.appliquee = True
+
+
+
+distance = r_distance
+variation_distance = r_variation_distance
+strategy = r_strategy
+Regles = [distance, variation_distance, strategy]
 
 

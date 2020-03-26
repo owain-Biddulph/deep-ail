@@ -3,8 +3,8 @@ import time
 from client import ClientSocket
 from heuristics.basic import HeuristicSplit
 from state import State
-from response import respond_systeme_expert
-
+from response import respond_systeme_expert, respond
+import sys
 
 def play_game(strategy):
     client_socket = ClientSocket()
@@ -36,4 +36,10 @@ def play_game(strategy):
 
 
 if __name__ == '__main__':
-    play_game(respond_systeme_expert)
+    print('Argument List:', sys.argv[1])
+    if sys.argv[1] == "alphabeta":
+        play_game(respond)
+    if sys.argv[1] == "systeme_expert":
+        print("lol")
+        play_game(respond_systeme_expert)
+

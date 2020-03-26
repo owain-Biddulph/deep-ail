@@ -24,7 +24,7 @@ class AttackFirst(Strategy):
             possible_squares = possible_target_squares(state.nb_rows, state.nb_columns, groups[0][0], groups[0][1])
             for square in possible_squares:
                 new_distance = utils.distance(square, groups[1])
-                moves = [[groups[0][0], groups[0][1], state.board[groups[0][0], groups[0][1], 1], square[0], square[1]]]
+                move = [[groups[0][0], groups[0][1], state.board[groups[0][0], groups[0][1], 1], square[0], square[1]]]
                 if new_distance == 2:
                     print("move choisi", move)
                     break
@@ -65,16 +65,19 @@ class AggloStrategy(Strategy):
         times = [0, 0, 0]
         heuristic = HeuristicAgglo
         state_copy = state.copy_state()
-        _, moves, times = alphabeta(state_copy, 3, -math.inf, math.inf, True, heuristic, times)
+        always_split = False
+        _, moves, times = alphabeta(state_copy, 3, -math.inf, math.inf, True, heuristic, times, always_split)
 
 
 class SplitStrategy(Strategy):
 
     def play(self, state):
         times = [0, 0, 0]
-        heuristic = HeuristicSplit
+        heuristic = HeuristicSplit()
         state_copy = state.copy_state()
-        _, moves, times = alphabeta(state_copy, 3, -math.inf, math.inf, True, heuristic, times)
+        always_split = True
+        _, moves, times = alphabeta(state_copy, 3, -math.inf, math.inf, True, heuristic, times, always_split)
+        return moves
 
 
 

@@ -9,7 +9,7 @@ from state import State, Species
 import utils
 
 
-def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool, heuristic, times):
+def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool, heuristic, times, always_split : bool):
     if depth == 0:
         t1 = time.time()
         eval, times = heuristic.evaluate(state, maximizing_player, times)
@@ -19,7 +19,12 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
 
     if maximizing_player:
         current_value = -math.inf
-        possible_moves, times = all_possible_moves(state, state.our_species, state.enemy_species, times)
+        possible_moves, times = all_possible_moves(state, state.our_species, state.enemy_species, times, always_split)
+
+        if len(possible_moves) == 0:
+            print("no possible moves")
+            state.display_board()
+
         if possible_moves is None:
             return -math.inf, None, times  # No more friendly units, we have lost
         best_move = None
@@ -27,7 +32,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
             child_state = state.copy_state()
             child_state.next_state(move, state.our_species.type)
             alphabeta_result, _, times = alphabeta(
-                child_state, depth - 1, alpha, beta, False, heuristic, times)
+                child_state, depth - 1, alpha, beta, False, heuristic, times, always_split)
             if current_value < alphabeta_result:
                 current_value = alphabeta_result
                 best_move = move
@@ -38,7 +43,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
         return current_value, best_move, times
     else:
         current_value = math.inf
-        possible_moves, times = all_possible_moves(state, state.enemy_species, state.our_species, times)
+        possible_moves, times = all_possible_moves(state, state.enemy_species, state.our_species, times, always_split)
         if possible_moves is None:
             return math.inf, None, times  # No more enemy units, we have won
         best_move = None
@@ -46,7 +51,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
             child_state = state.copy_state()
             child_state.next_state(move, state.enemy_species.type)
             alphabeta_result, _, times = alphabeta(
-                child_state, depth - 1, alpha, beta, True, heuristic, times)
+                child_state, depth - 1, alpha, beta, True, heuristic, times, always_split)
             if current_value > alphabeta_result:
                 current_value = alphabeta_result
                 best_move = move
@@ -54,6 +59,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
             beta = min(beta, current_value)
             if alpha >= beta:
                 break  # alpha cut-off
+        print(f"move : {best_move}")
         return current_value, best_move, times
 
 
@@ -70,7 +76,7 @@ def possibly_worth_splitting(friendly_squares: List[Tuple[int, int]],
     return True
 
 
-def all_possible_moves(state: State, moving_species: Species, other_species: Species, times) -> List[
+def all_possible_moves(state: State, moving_species: Species, other_species: Species, times, always_split) -> List[
     List[Tuple[int, int, int, int, int]]]:
     """Returns all the possible moves, limits number of splits to 2 in total
 
@@ -108,7 +114,7 @@ def all_possible_moves(state: State, moving_species: Species, other_species: Spe
             possible_moves.extend(this_square_moves)
 
         # Split moves
-        if worth_splitting:
+        if always_split or worth_splitting :
             min_size = adverse_square_contents[0][-1]
             second_min_size = adverse_square_contents[1][-1]
 
