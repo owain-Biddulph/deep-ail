@@ -4,10 +4,11 @@ from client import ClientSocket
 from heuristics.basic import Heuristic
 from state import State
 from response import respond
+from argparse import ArgumentParser
 
 
-def play_game(strategy):
-    client_socket = ClientSocket()
+def play_game(strategy, args):
+    client_socket = ClientSocket(ip=args.ip, port=args.port)
     client_socket.send_nme("DeepAIl")
     # set message
     client_socket.get_message()
@@ -36,4 +37,11 @@ def play_game(strategy):
 
 
 if __name__ == '__main__':
-    play_game(respond)
+    parser = ArgumentParser(description='This script launches the connection and the game.')
+    
+    parser.add_argument(dest='ip', default='localhost', type=str, help='IP adress the connection should be made to.')
+    parser.add_argument(dest='port', default='5555', type=int, help='Chosen port for the connection.')
+    
+    args = parser.parse_args()
+    
+    play_game(respond, args)
