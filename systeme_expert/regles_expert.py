@@ -32,6 +32,7 @@ Faits_precedents_3 = {"position nous": None, "position ennemie": None, "distance
                       "variation nb de groupe nous": None,
                       "strategy": None, "refus de combat": False}
 
+
 Faits = [Faits_actuels, Faits_precedents, Faits_precedents_2, Faits_precedents_3]
 
 
@@ -61,6 +62,7 @@ class Regle:
 
     def reset_applicable(self):
         self.appliquee = False
+
 
     def applicable(self, faits):
         if self.appliquee:
@@ -135,6 +137,14 @@ class r_refus_combat(Regle):
         self.appliquee = False
         self.premisses_actuels = ["distance"]
         self.premisses_precedents = ["distance", "refus de combat"]
+
+        self.premisses_precedents_2 = ["position nous", "position ennemie", "distance", "variation distance",
+                 "nb unité nous", "nb unité ennemie", "diff nb unité", "variation diff nb unité",
+                 "nb de groupe nous", "nb de groupe ennemie", "variation nb de groupe ennemie", "variation nb de groupe nous"]
+
+        self.premisses_precedents_3 = ["position nous", "position ennemie", "distance", "variation distance",
+                 "nb unité nous", "nb unité ennemie", "diff nb unité", "variation diff nb unité",
+                 "nb de groupe nous", "nb de groupe ennemie", "variation nb de groupe ennemie", "variation nb de groupe nous"]
 
     def appliquer(self, faits):
         # on considere qu'un ennemi nous fuit s'il a eu l'occasion de nous attaquer
