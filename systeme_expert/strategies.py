@@ -86,9 +86,3 @@ class SplitStrategy(Strategy):
         if reduce_depth:
             self.alphabeta_depth -= 1
         return moves
-
-
-
-
-
->>>>>>> session de mercredi
