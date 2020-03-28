@@ -14,14 +14,21 @@ Faits_precedents = {"position nous": None, "position ennemie": None, "distance":
                  "nb de groupe nous": None, "nb de groupe ennemie": None, "variation nb de groupe ennemie": None, "variation nb de groupe nous": None,
                     "strategy": None}
 
-Faits = [Faits_actuels, Faits_precedents]
+Faits_precedents_2 = {"position nous": None, "position ennemie": None, "distance": None, "variation distance": None,
+                 "nb unité nous": None, "nb unité ennemie": None, "diff nb unité": None, "variation diff nb unité": None,
+                 "nb de groupe nous": None, "nb de groupe ennemie": None, "variation nb de groupe ennemie": None, "variation nb de groupe nous": None,
+                    "strategy": None}
 
+Faits_precedents_3 = {"position nous": None, "position ennemie": None, "distance": None, "variation distance": None,
+                 "nb unité nous": None, "nb unité ennemie": None, "diff nb unité": None, "variation diff nb unité": None,
+                 "nb de groupe nous": None, "nb de groupe ennemie": None, "variation nb de groupe ennemie": None, "variation nb de groupe nous": None,
+                    "strategy": None}
 
-
+Faits = [Faits_actuels, Faits_precedents, Faits_precedents_2, Faits_precedents_3]
 
 
 def observation_faits(state, Faits):
-    Faits[1], Faits[0] = Faits[0], Faits[1]
+    Faits[0], Faits[1], Faits[2], Faits[3] = Faits[3], Faits[0], Faits[1], Faits[2]
     Faits[0]["position nous"] = state.our_species.tile_contents
     Faits[0]["position ennemie"] = state.enemy_species.tile_contents
     Faits[0]["nb unité nous"] = state.our_species.units
@@ -40,6 +47,8 @@ class Regle:
         self.appliquee = False
         self.premisses_actuels = []
         self.premisses_precedents = []
+        self.premisses_precedents_2 = []
+        self.premisses_precedents_3 = []
 
     def applicable(self, faits):
         if self.appliquee:
@@ -110,11 +119,54 @@ class r_strategy(Regle):
                  "nb unité nous", "nb unité ennemie", "diff nb unité", "variation diff nb unité",
                  "nb de groupe nous", "nb de groupe ennemie", "variation nb de groupe ennemie", "variation nb de groupe nous"]
 
+        self.premisses_precedents_2 = ["position nous", "position ennemie", "distance", "variation distance",
+                 "nb unité nous", "nb unité ennemie", "diff nb unité", "variation diff nb unité",
+                 "nb de groupe nous", "nb de groupe ennemie", "variation nb de groupe ennemie", "variation nb de groupe nous"]
+
+        self.premisses_precedents_3 = ["position nous", "position ennemie", "distance", "variation distance",
+                 "nb unité nous", "nb unité ennemie", "diff nb unité", "variation diff nb unité",
+                 "nb de groupe nous", "nb de groupe ennemie", "variation nb de groupe ennemie", "variation nb de groupe nous"]
+
     def appliquer(self, faits):
         faits_actuels = faits[0]
         faits_precedents = faits[1]
+        faits_precedents_2 = faits[2]
+        faits_precedents_3 = faits[3]
 
-        ##TODO
+        if faits_actuels["nb unité nous"] > 1.5 * faits_actuels["nb unité ennemie"]:
+            if faits_actuels["nb de groupe nous"] == 1:
+                if faits_actuels["nb de groupe ennemie"] == 1:
+                    Faits["strategy"] = "straightattack"
+                else:
+                    Faits["strategy"] = "straightattack"
+            else:
+                if faits_actuels["nb de groupe ennemie"] == 1:
+                    Faits["strategy"] = "agglo"
+                else:
+                    Faits["strategy"] = "agglo"
+        elif faits_actuels["nb unité nous"] > faits_actuels["nb unité ennemie"]:
+            if faits_actuels["nb de groupe nous"] == 1:
+                if faits_actuels["nb de groupe ennemie"] == 1:
+                    Faits["strategy"] = "firsttattack"
+                else:
+                    Faits["strategy"] = "firstattack"
+            else:
+                if faits_actuels["nb de groupe ennemie"] == 1:
+                    Faits["strategy"] = "agglo"
+                else:
+                    Faits["strategy"] = "agglo"
+
+        else:
+            if faits_actuels["nb de groupe nous"] == 1:
+                if faits_actuels["nb de groupe ennemie"] == 1:
+                    Faits["strategy"] = "split"
+                else:
+                    Faits["strategy"] = "split"
+            else:
+                if faits_actuels["nb de groupe ennemie"] == 1:
+                    Faits["strategy"] = "split"
+                else:
+                    Faits["strategy"] = "split"
 
         self.appliquee = True
 
