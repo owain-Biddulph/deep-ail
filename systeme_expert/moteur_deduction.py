@@ -1,7 +1,9 @@
 from systeme_expert.regles_expert import Regles, Faits
-from strategies import FirstAttack
+from systeme_expert.strategies import AttackFirst, StraightAttack, AggloStrategy, SplitStrategy
 
 def chainage(F, R):
+    for regle in R:
+        regle.reset_applicable()
 
     while True:
         regles_applicables = []
@@ -16,9 +18,18 @@ def chainage(F, R):
             regle.appliquer(F)
 
     if Faits[0]["strategy"] == "firstattack":
-        strat = FirstAttack()
+        strat = AttackFirst()
         return strat
 
+    if Faits[0]["strategy"] == "straightattack":
+        strat = StraightAttack()
+        return strat
 
+    if Faits[0]["strategy"] == "agglo":
+        strat = AggloStrategy()
+        return strat
 
+    if Faits[0]["strategy"] == "split":
+        strat = SplitStrategy()
+        return strat
 

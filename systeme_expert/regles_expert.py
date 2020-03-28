@@ -50,6 +50,9 @@ class Regle:
         self.premisses_precedents_2 = []
         self.premisses_precedents_3 = []
 
+    def reset_applicable(self):
+        self.appliquee = False
+
     def applicable(self, faits):
         if self.appliquee:
             return False
@@ -69,6 +72,9 @@ class Regle:
 
 
 class r_distance(Regle):
+    """
+    calcule la distance au sens des ensemble entre nous et eux.
+    """
 
     def __init__(self):
         self.appliquee = False
@@ -90,6 +96,9 @@ class r_distance(Regle):
 
 
 class r_variation_distance(Regle):
+    """
+    les ennemis s'approchent-ils ou s'éloignent-ils
+    """
 
     def __init__(self):
         self.appliquee = False
@@ -106,6 +115,8 @@ class r_variation_distance(Regle):
             faits["variation distance"] = 0
 
         self.appliquee = True
+
+
 
 
 class r_strategy(Regle):
@@ -133,40 +144,32 @@ class r_strategy(Regle):
         faits_precedents_2 = faits[2]
         faits_precedents_3 = faits[3]
 
-        if faits_actuels["nb unité nous"] > 1.5 * faits_actuels["nb unité ennemie"]:
-            if faits_actuels["nb de groupe nous"] == 1:
-                if faits_actuels["nb de groupe ennemie"] == 1:
-                    Faits["strategy"] = "straightattack"
-                else:
-                    Faits["strategy"] = "straightattack"
-            else:
-                if faits_actuels["nb de groupe ennemie"] == 1:
-                    Faits["strategy"] = "agglo"
-                else:
-                    Faits["strategy"] = "agglo"
-        elif faits_actuels["nb unité nous"] > faits_actuels["nb unité ennemie"]:
-            if faits_actuels["nb de groupe nous"] == 1:
-                if faits_actuels["nb de groupe ennemie"] == 1:
-                    Faits["strategy"] = "firsttattack"
-                else:
-                    Faits["strategy"] = "firstattack"
-            else:
-                if faits_actuels["nb de groupe ennemie"] == 1:
-                    Faits["strategy"] = "agglo"
-                else:
-                    Faits["strategy"] = "agglo"
+        # on est desesperes
+        if 1.5*faits_actuels["nb unité nous"] < faits_actuels["nb unité ennemie"]:
+            Faits["strategy"] = "split"
 
-        else:
-            if faits_actuels["nb de groupe nous"] == 1:
-                if faits_actuels["nb de groupe ennemie"] == 1:
-                    Faits["strategy"] = "split"
-                else:
-                    Faits["strategy"] = "split"
+        # si on n'est pas groupes, il faut le faire
+        elif faits_actuels["nb de groupe nous"] == 1:
+            Faits["strategy"] = "agglo"
+
+        # le cas ou on gagne de toute facon
+        elif faits_actuels["nb unité nous"] > 1.5 * faits_actuels["nb unité ennemie"]:
+            Faits["strategy"] = "straightattack"
+
+        # le cas ou on est just un peu plus nombreux : il faut tenter d'attaquer, mais s'ils fuient, les laisser fuir
+        elif faits_actuels["nb unité nous"] > faits_actuels["nb unité ennemie"]:
+            Faits["strategy"] = "firstattack"
+
+        # le cas ou on est un peu moins nombreux : il faut se battre à tout prix : si on peut les attaquer tant mieux
+        # sinon, il faut tenter quand meme
+        elif faits_actuels["nb unité nous"] < faits_actuels["nb unité ennemie"] and faits_actuels["nb unité nous"] > 1.5*faits_actuels["nb unité ennemie"]:
+            if not faits_actuels["ennemi en fuite"]:
+                Faits["strategy"] = "firstattack"
             else:
-                if faits_actuels["nb de groupe ennemie"] == 1:
-                    Faits["strategy"] = "split"
-                else:
-                    Faits["strategy"] = "split"
+                Faits["strategy"] = "straightattack"
+
+
+
 
         self.appliquee = True
 
