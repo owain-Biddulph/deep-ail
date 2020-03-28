@@ -6,6 +6,7 @@ from systeme_expert.moteur_deduction import chainage
 from systeme_expert.regles_expert import Faits, Regles
 
 
+
 class GlobalStrategy:
     def __init__(self, alphabeta_depth, heuristic):
         self.alphabeta_depth = alphabeta_depth
