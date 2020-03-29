@@ -50,5 +50,3 @@ if __name__ == '__main__':
     strategy = GlobalStrategy(4, heuristic)
     play_game(strategy, args)
 
-
-

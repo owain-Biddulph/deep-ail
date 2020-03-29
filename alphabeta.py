@@ -20,6 +20,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
     if maximizing_player:
         current_value = -math.inf
         possible_moves, times = all_possible_moves(state, state.our_species, state.enemy_species, times, always_split)
+
         if possible_moves is None:
             return -math.inf, None, times  # No more friendly units, we have lost
         best_move = None

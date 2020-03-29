@@ -40,3 +40,4 @@ def chainage(F, R, state):
     if F[0]["strategy"] == "split":
         strat = SplitStrategy()
         return strat
+

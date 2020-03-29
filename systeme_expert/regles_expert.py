@@ -75,6 +75,7 @@ class Regle:
         for premisse in self.premisses_precedents:
             print(f"premisse precedent {premisse}: {faits[1][premisse]}")
             if faits[1][premisse] is None:
+
                 return False
 
         return True
@@ -192,6 +193,7 @@ class r_strategy(Regle):
 
     def __init__(self):
         self.appliquee = False
+
         # self.premisses_actuels = ["refus de combat""position nous", "position ennemie", "distance", "variation distance",
         #         "nb unité nous", "nb unité ennemie", "diff nb unité", "variation diff nb unité",
         #         "nb de groupe nous", "nb de groupe ennemie", "variation nb de groupe ennemie", "variation nb de groupe nous"]
