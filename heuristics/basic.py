@@ -7,6 +7,7 @@ import utils
 
 
 class Heuristic:
+    """A global heuristic that chooses the appropriate heuristic to use depending on the context"""
     def __init__(self):
         self.cached_scores = {}
 
