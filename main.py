@@ -7,9 +7,8 @@ from response import GlobalStrategy
 from argparse import ArgumentParser
 
 
-
 def play_game(strategy, args):
-    client_socket = ClientSocket(ip=args.ip, port=args.port)
+    client_socket = ClientSocket()
     client_socket.send_nme("DeepAIl")
     # set message
     client_socket.get_message()
@@ -41,12 +40,11 @@ def play_game(strategy, args):
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='This script launches the connection and the game.')
-    
+
     parser.add_argument(dest='ip', default='localhost', type=str, help='IP adress the connection should be made to.')
     parser.add_argument(dest='port', default='5555', type=int, help='Chosen port for the connection.')
-    
+
     args = parser.parse_args()
     heuristic = Heuristic()
     strategy = GlobalStrategy(3, heuristic)
     play_game(strategy, args)
-

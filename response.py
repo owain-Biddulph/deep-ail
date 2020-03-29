@@ -35,4 +35,3 @@ class GlobalStrategy:
         moves = strategy.play(state, time_message_received)
 
         return len(moves), moves
-
