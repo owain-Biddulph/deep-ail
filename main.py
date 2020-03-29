@@ -6,6 +6,7 @@ from state import State
 from response import respond_systeme_expert, respond
 import sys
 
+
 def play_game(strategy):
     client_socket = ClientSocket()
     client_socket.send_nme("DeepAIl")

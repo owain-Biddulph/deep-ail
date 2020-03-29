@@ -1,42 +1,43 @@
-from systeme_expert.regles_expert import observation_faits
+from systeme_expert.regles_expert import fact_observation
 from systeme_expert.strategies import AttackFirst, StraightAttack, AggloStrategy, SplitStrategy
 
-def chainage(F, R, state):
-    for regle in R:
-        regle.reset_applicable()
 
-    observation_faits(state, F)
+def chainage(facts, rules, state):
+    for rule in rules:
+        rule.reset_applicable()
 
-    print(f"faits precedents {F[1]}")
+    fact_observation(state, facts)
+
+    print(f"faits precedents {facts[1]}")
 
     while True:
         regles_applicables = []
-        for regle in R:
-            if regle.applicable(F):
-                regles_applicables.append(regle)
+        for rule in rules:
+            if rule.applicable(facts):
+                regles_applicables.append(rule)
         
         if len(regles_applicables) == 0:
             break
 
-        for regle in regles_applicables:
-            print(regle)
-            regle.appliquer(F)
+        for rule in regles_applicables:
+            print(rule)
+            rule.apply(facts)
 
-    print(f"chosen strategy : {F[0]['strategy']}")
+    print(f"chosen strategy : {facts[0]['strategy']}")
 
-    if F[0]["strategy"] == "firstattack":
+    if facts[0]["strategy"] == "firstattack":
         strat = AttackFirst()
         return strat
 
-    if F[0]["strategy"] == "straightattack":
+    if facts[0]["strategy"] == "straightattack":
         strat = StraightAttack()
         return strat
 
-    if F[0]["strategy"] == "agglo":
+    if facts[0]["strategy"] == "agglo":
         strat = AggloStrategy()
         return strat
 
-    if F[0]["strategy"] == "split":
+    if facts[0]["strategy"] == "split":
         strat = SplitStrategy()
         return strat
 

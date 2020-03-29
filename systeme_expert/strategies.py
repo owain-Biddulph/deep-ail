@@ -7,18 +7,17 @@ from heuristics.basic import HeuristicAgglo, HeuristicSplit
 
 
 class Strategy:
-
     def play(self, state):
         pass
 
 
 class AttackFirst(Strategy):
-
     def play(self, state):
         distance_min, groups = utils.distance_min(state)
         print("distance_min:", distance_min)
         if distance_min == 1:
-            move = [[groups[0][0], groups[0][1], state.board[groups[0][0], groups[0][1], 1],groups[1][0], groups[1][1]]]
+            move = [
+                [groups[0][0], groups[0][1], state.board[groups[0][0], groups[0][1], 1], groups[1][0], groups[1][1]]]
 
         elif distance_min == 2:
             possible_squares = possible_target_squares(state.nb_rows, state.nb_columns, groups[0][0], groups[0][1])
@@ -44,7 +43,6 @@ class AttackFirst(Strategy):
 
 
 class StraightAttack(Strategy):
-
     def play(self, state):
 
         distance_min, groups = utils.distance_min(state)
@@ -60,7 +58,6 @@ class StraightAttack(Strategy):
 
 
 class AggloStrategy(Strategy):
-
     def play(self, state):
         times = [0, 0, 0]
         heuristic = HeuristicAgglo
@@ -70,7 +67,6 @@ class AggloStrategy(Strategy):
 
 
 class SplitStrategy(Strategy):
-
     def play(self, state):
         times = [0, 0, 0]
         heuristic = HeuristicSplit()
@@ -78,7 +74,3 @@ class SplitStrategy(Strategy):
         always_split = True
         _, moves, times = alphabeta(state_copy, 3, -math.inf, math.inf, True, heuristic, times, always_split)
         return moves
-
-
-
-

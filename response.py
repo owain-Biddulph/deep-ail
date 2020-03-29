@@ -3,7 +3,7 @@ from state import State
 from alphabeta import alphabeta
 from math import inf
 from systeme_expert.moteur_deduction import chainage
-from systeme_expert.regles_expert import Faits, Regles
+from systeme_expert.regles_expert import Facts, Rules
 from systeme_expert.strategies import AggloStrategy, SplitStrategy, AttackFirst
 
 
