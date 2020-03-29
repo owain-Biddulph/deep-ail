@@ -28,7 +28,7 @@ class Heuristic:
                 score = end_game_score(state.our_species.tile_contents(), state.our_species.units,
                                        state.enemy_species.units), times
             self.cached_scores[board_hash] = score
-        return score*state.probability
+        return score[0]*state.probability, score[1]
 
 
 def in_game_score(state: State, all_occupied_tile_us: List[List[int]], all_occupied_tile_opponent: List[List[int]],
