@@ -3,7 +3,7 @@ from state import State
 from alphabeta import alphabeta
 from math import inf
 from systeme_expert.moteur_deduction import chainage
-#from systeme_expert.regles_expert import Faits, Regles
+from systeme_expert.regles_expert import Faits, Regles
 from systeme_expert.strategies import AggloStrategy, SplitStrategy, AttackFirst
 
 
@@ -23,8 +23,8 @@ def respond_systeme_expert(state: State, heuristic) -> Tuple[int, List]:
 
     if len(state.human_species.tile_coordinates()) == 0: # ya plus d'humains, on passe sur le systeme expert
         # strategy = AttackFirst()
-        strategy = chainage(Faits, Regles)
-        moves = strategy.play(state_copy)
+        strategy = chainage(Faits, Regles, state_copy)
+        moves = strategy.play(state)
         print(f"moves from strategy {moves}")
         # print("\n")
         # print(f"time to get moves: {times[0]}, time to remove illegal: {times[1]}")

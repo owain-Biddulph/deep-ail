@@ -18,7 +18,7 @@ class AttackFirst(Strategy):
         distance_min, groups = utils.distance_min(state)
         print("distance_min:", distance_min)
         if distance_min == 1:
-            moves = [[groups[0][0], groups[0][1], state.board[groups[0][0], groups[0][1], 1],groups[1][0], groups[1][1]]]
+            move = [[groups[0][0], groups[0][1], state.board[groups[0][0], groups[0][1], 1],groups[1][0], groups[1][1]]]
 
         elif distance_min == 2:
             possible_squares = possible_target_squares(state.nb_rows, state.nb_columns, groups[0][0], groups[0][1])
