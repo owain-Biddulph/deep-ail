@@ -1,11 +1,15 @@
 import time
-
+import threading
 from client import ClientSocket
 from heuristics.basic import Heuristic
 from state import State
 from response import respond
 from argparse import ArgumentParser
 
+def timer(amount:int , time_is_up):
+    time.sleep(amount)
+    print("time is up!!!")
+    time_is_up[0] = True
 
 def play_game(strategy, args):
     client_socket = ClientSocket(ip=args.ip, port=args.port)
@@ -30,7 +34,9 @@ def play_game(strategy, args):
         state.update(client_socket.message)
         if client_socket.message[0] == "upd":
             t2 = time.time()
-            nb_moves, moves = strategy(state, heuristic)
+            time_is_up = [False]
+            threading.Thread(target=timer, args=(1.8, time_is_up))
+            nb_moves, moves = strategy(state, heuristic, time_is_up)
             t3 = time.time()
             print(f"time to think about strategy : {t3 - t2}")
             client_socket.send_mov(nb_moves, moves)
