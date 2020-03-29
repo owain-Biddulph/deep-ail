@@ -163,29 +163,33 @@ class State:
             win_probability = utils.win_probability(
                 n, self.board[x, y, 1], self.board[x, y, 0])
             if win_probability >= 0.8:
-                survivors = np.random.binomial(
-                    self._board[x, y, 1], 1-win_probability)
+                survivors = np.random.binomial(n, win_probability)
 
                 # We are defending
                 if self._board[x, y, 0] == self.our_species.type:
-                    self.our_species.remove_units(
-                        (x, y), self.board[x, y, 1] - survivors)
-                    species = self.our_species.type
-                    self.probability = self.probability*(1-win_probability)
+                    self.our_species.remove_tile((x, y))
+                    species = self.enemy_species.type
+                    self.enemy_species.add_units((x, y), survivors)
+                    self.probability = self.probability * win_probability
 
                 # We are attacking the enemy
                 elif self._board[x, y, 0] == self.enemy_species.type:
                     self.enemy_species.remove_tile((x, y))
                     self.our_species.add_units((x, y), survivors)
                     species = self.our_species.type
-                    self.probability = self.probability*win_probability
+                    self.probability = self.probability * win_probability
 
                 # Humans are being attacked
                 else:
                     self.human_species.remove_tile((x, y))
-                    self.our_species.add_units((x, y), survivors)
-                    species = self.our_species.type
-                    self.probability = self.probability*win_probability
+                    transformed_humans = self.board[x, y, 1] * win_probability
+                    if self.our_species.type == species_to_add:
+                        self.our_species.add_units((x, y), survivors + transformed_humans)
+                        species = self.our_species.type
+                    else:
+                        self.enemy_species.add_units((x, y), survivors + transformed_humans)
+                        species = self.enemy_species.type
+                    self.probability = self.probability * win_probability
 
             # If the outcome has a probability below this value (0.8), we consider the fight is lost
             else:
@@ -194,10 +198,9 @@ class State:
 
                 # We are defending
                 if self._board[x, y, 0] == self.our_species.type:
-                    self.our_species.remove_tile((x, y))
-                    self.enemy_species.add_units((x, y), survivors)
-                    species = self.enemy_species.type
-                    self.probability = self.probability*(win_probability)
+                    self.our_species.remove_units((x, y), self._board[x, y, 1] - survivors)
+                    species = self.our_species.type
+                    self.probability = self.probability * win_probability  # Bit of an odd one
 
                 # We are attacking the enemy
                 elif self._board[x, y, 0] == self.enemy_species.type:
@@ -208,7 +211,6 @@ class State:
 
                 # Humans are being attacked
                 else:
-                    self.our_species.remove_tile((x, y))
                     self.human_species.remove_units(
                         (x, y), (self.board[x, y, 1]-survivors))
                     species = self.human_species.type
