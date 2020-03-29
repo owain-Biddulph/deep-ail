@@ -9,9 +9,10 @@ from state import State, Species
 import utils
 
 
-def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool, heuristic, times, time_is_up):
-    print(time_is_up[0])
-    if depth == 0 or time_is_up[0]:
+def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool, heuristic, times, time_start):
+    now = time.time()
+    if depth == 0 or now - time_start > 1.8:
+        print(f"time left : {now - time_start}")
         t1 = time.time()
         eval, times = heuristic.evaluate(state, maximizing_player, times)
         t2 = time.time()
@@ -28,7 +29,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
             child_state = state.copy_state()
             child_state.next_state(move, state.our_species.type)
             alphabeta_result, _, times = alphabeta(
-                child_state, depth - 1, alpha, beta, False, heuristic, times, time_is_up)
+                child_state, depth - 1, alpha, beta, False, heuristic, times, time_start)
             if current_value < alphabeta_result:
                 current_value = alphabeta_result
                 best_move = move
@@ -47,7 +48,7 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
             child_state = state.copy_state()
             child_state.next_state(move, state.enemy_species.type)
             alphabeta_result, _, times = alphabeta(
-                child_state, depth - 1, alpha, beta, True, heuristic, times, time_is_up)
+                child_state, depth - 1, alpha, beta, True, heuristic, times, time_start)
             if current_value > alphabeta_result:
                 current_value = alphabeta_result
                 best_move = move
