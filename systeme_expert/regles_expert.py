@@ -150,7 +150,7 @@ class RStrategy(Rule):
             facts[0]["strategy"] = "straightattack"
 
         # le cas ou on est just un peu plus nombreux : il faut tenter d'attaquer, mais s'ils fuient, les laisser fuir
-        elif current_facts["nb unité nous"] > current_facts["nb unité ennemie"]:
+        elif current_facts["nb unité nous"] >= current_facts["nb unité ennemie"]:
             facts[0]["strategy"] = "firstattack"
 
         # le cas ou on est un peu moins nombreux : il faut se battre à tout prix : si on peut les attaquer tant mieux

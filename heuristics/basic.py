@@ -1,5 +1,5 @@
 import math
-from typing import List, Tuple
+from typing import List
 
 from state import State
 import utils
@@ -24,7 +24,7 @@ class Heuristic:
             if len(state.human_species.tile_coordinates()) != 0:
                 score = in_game_score(state, state.our_species.tile_contents(), state.enemy_species.tile_contents(),
                                       state.human_species.tile_contents(), state.our_species.units,
-                                      state.enemy_species.units, maximizing_player, [10, 1, 1])
+                                      state.enemy_species.units, maximizing_player, [80, 1, 1])
             else:
                 score = end_game_score(state.our_species.tile_contents(), state.our_species.units,
                                        state.enemy_species.units)
@@ -49,7 +49,7 @@ def in_game_score(state: State, all_occupied_tile_us: List[List[int]], all_occup
     """
     # all_occupied_tile assumed to be with format : [x_position, y_position, number]
     if ponderation is None:
-        ponderation = [100, 1, 1]
+        ponderation = [80, 1, 1]
     if enemy_population == 0:
         return math.inf
     if our_population == 0:
@@ -119,17 +119,17 @@ def end_game_score(all_occupied_tile_us: List[List[int]], our_population: int, e
         return -math.inf
     current_state_score: int = our_population - enemy_population
 
-    proximity_score: int = 0
+    proximity_score: float = 0
     number_of_tile_combinations = 1
     for i in range(len(all_occupied_tile_us)):
         for j in range(i):
-            proximity_score += - utils.distance((all_occupied_tile_us[i][0], all_occupied_tile_us[i][1]),
-                                                (all_occupied_tile_us[j][0], all_occupied_tile_us[j][1]))
+            proximity_score -= utils.distance((all_occupied_tile_us[i][0], all_occupied_tile_us[i][1]),
+                                              (all_occupied_tile_us[j][0], all_occupied_tile_us[j][1]))
             number_of_tile_combinations += 1
-    proximity_score += proximity_score / number_of_tile_combinations
+    proximity_score /= number_of_tile_combinations
 
     groups_score: int = -len(all_occupied_tile_us)
-    score: int = ponderation[0] * current_state_score + ponderation[1] * groups_score + ponderation[2] * proximity_score
+    score: float = ponderation[0] * current_state_score + ponderation[1] * groups_score + ponderation[2] * proximity_score
 
     return score
 

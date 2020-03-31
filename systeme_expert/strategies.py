@@ -63,7 +63,6 @@ class AggloStrategy(Strategy):
         always_split = False
         _, moves, reduce_depth = alphabeta(state_copy, 3, -inf, inf, True, heuristic, time_message_received,
                                            always_split)
-
         return moves
 
 

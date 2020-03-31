@@ -29,10 +29,7 @@ def play_game(strategy, args):
         time_message_received = time.time()
         state.update(client_socket.message)
         if client_socket.message[0] == "upd":
-            t2 = time.time()
             nb_moves, moves = strategy.respond(state, time_message_received)
-            t3 = time.time()
-            print(f"time to think about strategy : {t3 - t2}")
             client_socket.send_mov(nb_moves, moves)
 
 
