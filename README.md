@@ -8,7 +8,7 @@ L'objectif de ce projet est de concevoir un système capable de jouer une partie
 
 Dans le cadre du tournoi, chaque instruction pour un coup doit être calculée en un temps inférieur à deux secondes, puis être envoyé au serveur selon un format particulier. Les coups de l'adversaire sont reçus depuis le serveur selon le même format. 
 
-## Installation et lancement - à modifier une fois proprement packagé 
+## Installation et lancement
 
 Pour utiliser notre IA, télécharger le repository et après avoir lancé le programme du serveur, vous pouvez finalement démarrer notre joueur (et la partie si tant est qu'il y ait un deuxième joueur) en exécutant depuis la root la commande :
 ```python main.py ip port``` 
@@ -31,7 +31,7 @@ Le code est construit autour du fichier ```main.py``` qui instancie un joueur en
 ### Détails particuliers de l'implémentation
 
 L'implémentation du programme alpha-beta repose sur une structure assez classique. Nous avons toutefois ajouté quelques particularités afin de gagner en vitesse de parcours des états : 
-- L'implémentation de l'heuristique à travers une classe de manière à garder un cache des états parcourus pour gagner du temps lors de l'évaluation de ceux-ci (voir ```heuristics\basic.py```).
+- L'implémentation des heuristiques à travers une classe de manière à garder un cache des états parcourus pour gagner du temps lors de l'évaluation de ceux-ci (voir ```heuristics\basic.py```).
 - Un tri préalable des états à parcourir (d'abord les états passsant par un combat contre des humains, puis les états avec fusion de groupe de l'espèce, puis ceux avec combat contre l'ennemi et enfin ceux impliquant un déplacement sur des cases vides) de manière à effectuer les mouvements critiques en priorité (voir ```alphabeta.py```).
 - L'implémentation des espèces à travers des classes de manière à faire évoluer les informations qui leur sont relatives à chaque réception de changement sans avoir à reparcourir à chaque fois l'ensemble du plateau de jeu (voir ```state.py```).
 
