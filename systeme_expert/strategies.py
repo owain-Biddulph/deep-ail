@@ -51,7 +51,6 @@ class StraightAttack(Strategy):
             new_distance = utils.distance(square, groups[1])
             move = [[groups[0][0], groups[0][1], state.board[groups[0][0], groups[0][1], 1], square[0], square[1]]]
             if new_distance == distance_min - 1:
-                print("move choisi", move)
                 break
         return move
 
