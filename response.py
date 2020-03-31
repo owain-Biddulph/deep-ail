@@ -3,7 +3,7 @@ from state import State
 from alphabeta import alphabeta, TimeError
 from math import inf
 from systeme_expert.moteur_deduction import chainage
-from systeme_expert.regles_expert import Faits, Regles
+from systeme_expert.regles_expert import Facts, Rules
 
 
 class GlobalStrategy:
@@ -31,7 +31,7 @@ class GlobalStrategy:
     @staticmethod
     def respond_with_expert_system(state: State, time_message_received) -> Tuple[int, List]:
         state_copy = state.copy_state()
-        strategy = chainage(Faits, Regles, state_copy)
+        strategy = chainage(Facts, Rules, state_copy)
         moves = strategy.play(state, time_message_received)
 
         return len(moves), moves

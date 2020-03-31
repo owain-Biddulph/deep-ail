@@ -8,7 +8,7 @@ from argparse import ArgumentParser
 
 
 def play_game(strategy, args):
-    client_socket = ClientSocket()
+    client_socket = ClientSocket(args.ip, args.port)
     client_socket.send_nme("DeepAIl")
     # set message
     client_socket.get_message()
@@ -24,8 +24,6 @@ def play_game(strategy, args):
     state.update(client_socket.message)
 
     # start of the game
-    heuristic = Heuristic()
-
     while True:
         client_socket.get_message()
         time_message_received = time.time()
