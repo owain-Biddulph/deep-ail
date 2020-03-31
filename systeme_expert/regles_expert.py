@@ -1,8 +1,8 @@
 from utils import species_coordinates, distance
 import math
 
-##liste des faits: positions nous/ennemie, distance, variation distance, nb unité nous/ennemie, différence nb unité, variation différence
-## nombre de groupe d'unité nous/ennemie, différence du nombre de groupe, variation de cette différence
+## liste des faits: positions nous/ennemie, distance, variation distance, nb unité nous/ennemie, différence nb unité, variation différence
+# nombre de groupe d'unité nous/ennemie, différence du nombre de groupe, variation de cette différence
 
 Faits_actuels = {"position nous": None, "position ennemie": None, "distance": 5, "variation distance": None,
                  "nb unité nous": None, "nb unité ennemie": None, "diff nb unité": None,
@@ -61,7 +61,6 @@ class Regle:
 
     def reset_applicable(self):
         self.appliquee = False
-
 
     def applicable(self, faits):
         if self.appliquee:
@@ -200,7 +199,7 @@ class r_strategy(Regle):
             print(f"choosing {Faits[0]['strategy']}")
 
         # le cas ou on est just un peu plus nombreux : il faut tenter d'attaquer, mais s'ils fuient, les laisser fuir
-        elif faits_actuels["nb unité nous"] > faits_actuels["nb unité ennemie"]:
+        elif faits_actuels["nb unité nous"] >= faits_actuels["nb unité ennemie"]:
             Faits[0]["strategy"] = "firstattack"
             print(f"choosing {Faits[0]['strategy']}")
 

@@ -47,6 +47,6 @@ if __name__ == '__main__':
     
     args = parser.parse_args()
     heuristic = Heuristic()
-    strategy = GlobalStrategy(4, heuristic)
+    strategy = GlobalStrategy(3, heuristic)
     play_game(strategy, args)
 
