@@ -35,6 +35,7 @@ L'implémentation du programme alpha-beta repose sur une structure assez classiq
 - L'implémentation des heuristiques à travers une classe de manière à garder un cache des états parcourus pour gagner du temps lors de l'évaluation de ceux-ci (voir ```heuristics\basic.py```).
 - Un tri préalable des états à parcourir (d'abord les états passsant par un combat contre des humains, puis les états avec fusion de groupe de l'espèce, puis ceux avec combat contre l'ennemi et enfin ceux impliquant un déplacement sur des cases vides) de manière à effectuer les mouvements critiques en priorité (voir ```alphabeta.py```).
 - L'implémentation des espèces à travers des classes de manière à faire évoluer les informations qui leur sont relatives à chaque réception de changement sans avoir à reparcourir à chaque fois l'ensemble du plateau de jeu (voir ```state.py```).
+- Une class *GlobalStrategy* permet de faire baisser la profondeur de l’alphabeta si les calcules prennent trop de temps.
 
 ### Explication de la stratégie adoptée 
 
