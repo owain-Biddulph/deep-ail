@@ -1,22 +1,26 @@
 import numpy as np
 
+
 def centroid(state, species):
     coords = np.nonzero(state.board[:, :, 0] == species)
     weights = np.where(state.board[:, :, 0] == species, state.board[:, :, 1], 0)
-    centroid = np.zeros(2)
+    centroid_ = np.zeros(2)
     for (x, y) in zip(coords[0], coords[1]):
-        centroid[0] += weights[x, y] * x
-        centroid[1] += weights[x, y] * y
-    centroid /= np.sum(weights)
-    return centroid
+        centroid_[0] += weights[x, y] * x
+        centroid_[1] += weights[x, y] * y
+    centroid_ /= np.sum(weights)
+    return centroid_
+
 
 def dist(p1, p2):
     return np.sqrt((p1[0]-p2[0])**2+(p1[1]-p2[1])**2)
+
 
 def measure_risk(state, our_species, enemy_species):
     our_ctr = centroid(state, our_species)
     enemy_ctr = centroid(state, enemy_species)
     return dist(our_ctr, enemy_ctr)
+
 
 def measure_proximity(state, species):
     ctr = centroid(state, species)
@@ -30,7 +34,7 @@ def measure_proximity(state, species):
 
 
 def next_move():
-    groups = np.count_nonzero(state._board[:, :, 0] == state.our_species)
+    groups = np.count_nonzero(state.board[:, :, 0] == state.our_species)
     
     # Si on est pas regroupé, on cherche à diminuer la distance entre chacune de nos unités.
     if groups > 1:

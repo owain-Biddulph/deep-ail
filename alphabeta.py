@@ -1,4 +1,4 @@
-from itertools import combinations, product
+from itertools import product
 import numpy as np
 from typing import List, Tuple
 import math
@@ -9,26 +9,24 @@ from state import State, Species
 import utils
 
 
-def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool, heuristic, time_message_received, times, always_split: bool):
+def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool, heuristic, time_message_received,
+              always_split: bool):
     if depth == 0:
-        t1 = time.time()
-        eval, times = heuristic.evaluate(state, maximizing_player, times)
-        t2 = time.time()
-        times[2] += t2 - t1
-        return eval, None, False, times
+        eval = heuristic.evaluate(state, maximizing_player)
+        return eval, None, False
 
     if maximizing_player:
         current_value = -math.inf
-        possible_moves, times = all_possible_moves(state, state.our_species, state.enemy_species, times, always_split)
+        possible_moves = all_possible_moves(state, state.our_species, state.enemy_species, always_split)
 
         if possible_moves is None:
-            return -math.inf, None, times  # No more friendly units, we have lost
+            return -math.inf, None  # No more friendly units, we have lost
         best_move = None
         for move in possible_moves:
             child_state = state.copy_state()
             child_state.next_state(move, state.our_species.type)
-            alphabeta_result, _, _, times = alphabeta(
-                child_state, depth - 1, alpha, beta, False, heuristic, time_message_received, times, always_split)
+            alphabeta_result, _, _ = alphabeta(
+                child_state, depth - 1, alpha, beta, False, heuristic, time_message_received, always_split)
             if current_value < alphabeta_result:
                 current_value = alphabeta_result
                 best_move = move
@@ -40,19 +38,19 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
             except TimeError:
                 if best_move is None:
                     best_move = move
-                return current_value, best_move, True, times
-        return current_value, best_move, False, times
+                return current_value, best_move, True
+        return current_value, best_move, False
     else:
         current_value = math.inf
-        possible_moves, times = all_possible_moves(state, state.enemy_species, state.our_species, times, always_split)
+        possible_moves = all_possible_moves(state, state.enemy_species, state.our_species, always_split)
         if possible_moves is None:
-            return math.inf, None, times  # No more enemy units, we have won
+            return math.inf, None  # No more enemy units, we have won
         best_move = None
         for move in possible_moves:
             child_state = state.copy_state()
             child_state.next_state(move, state.enemy_species.type)
-            alphabeta_result, _, _, times = alphabeta(
-                child_state, depth - 1, alpha, beta, True, heuristic, time_message_received, times, always_split)
+            alphabeta_result, _, _ = alphabeta(
+                child_state, depth - 1, alpha, beta, True, heuristic, time_message_received, always_split)
 
             if current_value > alphabeta_result:
                 current_value = alphabeta_result
@@ -66,9 +64,8 @@ def alphabeta(state, depth: int, alpha: int, beta: int, maximizing_player: bool,
             except TimeError:
                 if best_move is None:
                     best_move = move
-                return current_value, best_move, True, times
-        return current_value, best_move, False, times
-
+                return current_value, best_move, True
+        return current_value, best_move, False
 
 
 def possibly_worth_splitting(friendly_squares: List[Tuple[int, int]],
@@ -84,7 +81,7 @@ def possibly_worth_splitting(friendly_squares: List[Tuple[int, int]],
     return True
 
 
-def all_possible_moves(state: State, moving_species: Species, other_species: Species, times, always_split) -> List[
+def all_possible_moves(state: State, moving_species: Species, other_species: Species, always_split) -> List[
     List[Tuple[int, int, int, int, int]]]:
     """Returns all the possible moves, limits number of splits to 2 in total.
 
@@ -92,7 +89,6 @@ def all_possible_moves(state: State, moving_species: Species, other_species: Spe
     :param species:
     :return:
     """
-    t1 = time.time()
     moving_species_squares: List[Tuple[int, int]] = moving_species.tile_coordinates()
     human_squares: List[Tuple[int, int]] = state.human_species.tile_coordinates()
     other_species_squares: List[Tuple[int, int]] = other_species.tile_coordinates()
@@ -219,12 +215,8 @@ def all_possible_moves(state: State, moving_species: Species, other_species: Spe
         if len(human_squares) == 0:
             possible_moves.extend(this_square_moves)
     possible_moves += list(map(merge, product(*square_moves)))
-    t2 = time.time()
     possible_moves = remove_illegal_moves(possible_moves)
-    t3 = time.time()
-    times[0] += t2 - t1
-    times[1] += t3 - t2
-    return possible_moves, times
+    return possible_moves
 
 
 def order_target_squares(state: State, target_squares: List[Tuple[int, int]], moving_species: int):
@@ -236,11 +228,11 @@ def order_target_squares(state: State, target_squares: List[Tuple[int, int]], mo
     """
     order = []
     for square in target_squares:
-        if state._board[square[0], square[1], 0] == 1:
+        if state.board[square[0], square[1], 0] == 1:
             order.append((square, 1))
-        elif state._board[square[0], square[1], 0] == moving_species:
+        elif state.board[square[0], square[1], 0] == moving_species:
             order.append((square, 2) )
-        elif state._board[square[0], square[1], 0] > 0:
+        elif state.board[square[0], square[1], 0] > 0:
             order.append((square, 3))
         else:
             order.append((square, 4))
@@ -256,10 +248,6 @@ def possible_target_squares(nb_rows: int, nb_columns: int, x: int, y: int) -> Li
     :param y: int, row coordinate of original square
     :return: list of squares
     """
-    print("x", x)
-    print("y", y)
-    print(f"nb_rows {nb_rows}")
-    print(f"nb_colonnes {nb_columns}")
     if x == 0:
         if y == 0:
             possible_squares = [(x + 1, y + 1), (x + 1, y), (x, y + 1)]
@@ -269,8 +257,6 @@ def possible_target_squares(nb_rows: int, nb_columns: int, x: int, y: int) -> Li
             possible_squares = [(x + 1, y), (x + 1, y + 1),
                                 (x + 1, y - 1), (x, y + 1), (x, y - 1)]
     elif x == nb_columns - 1:
-        print("on atteint le bord pour x")
-
         if y == 0:
             possible_squares = [(x - 1, y + 1), (x - 1, y), (x, y + 1)]
         elif y == nb_rows - 1:
@@ -282,13 +268,11 @@ def possible_target_squares(nb_rows: int, nb_columns: int, x: int, y: int) -> Li
         possible_squares = [(x, y + 1), (x + 1, y + 1),
                             (x - 1, y + 1), (x + 1, y), (x - 1, y)]
     elif y == nb_rows - 1:
-        print("on atteint le bord pour y")
         possible_squares = [(x, y - 1), (x + 1, y - 1),
                             (x - 1, y - 1), (x + 1, y), (x - 1, y)]
     else:
         possible_squares = [(x, y + 1), (x, y - 1), (x + 1, y), (x - 1, y), (x + 1, y + 1), (x - 1, y - 1),
                             (x + 1, y - 1), (x - 1, y + 1)]
-    print("possible squares", possible_squares)
     return possible_squares
 
 
@@ -328,6 +312,7 @@ def remove_illegal_moves(moves: List[List[Tuple]]) -> List[List[Tuple[int, int, 
 
 
 def check_time(time_message_received):
+    """Checks how much time has elapsed since the update message"""
     elapsed_time = time.time() - time_message_received
     if elapsed_time >= 1.90:
         raise TimeError

@@ -1,7 +1,6 @@
 import utils
 from alphabeta import possible_target_squares, alphabeta
 import math
-import time
 
 from heuristics.basic import HeuristicAgglo, HeuristicSplit
 from math import inf
@@ -17,7 +16,6 @@ class AttackFirst(Strategy):
 
     def play(self, state, time_message_received):
         distance_min, groups = utils.distance_min(state)
-        print("distance_min:", distance_min)
         if distance_min == 1:
             move = [[groups[0][0], groups[0][1], state.board[groups[0][0], groups[0][1], 1],groups[1][0], groups[1][1]]]
 
@@ -27,7 +25,6 @@ class AttackFirst(Strategy):
                 new_distance = utils.distance(square, groups[1])
                 move = [[groups[0][0], groups[0][1], state.board[groups[0][0], groups[0][1], 1], square[0], square[1]]]
                 if new_distance == 2:
-                    print("move choisi", move)
                     break
 
         else:
@@ -40,7 +37,6 @@ class AttackFirst(Strategy):
                     move = [
                         [groups[0][0], groups[0][1], state.board[groups[0][0], groups[0][1], 1], square[0], square[1]]]
                     min_distances = new_distance
-        time.sleep(0.3)
         return move
 
 
@@ -55,7 +51,6 @@ class StraightAttack(Strategy):
             new_distance = utils.distance(square, groups[1])
             move = [[groups[0][0], groups[0][1], state.board[groups[0][0], groups[0][1], 1], square[0], square[1]]]
             if new_distance == distance_min - 1:
-                print("move choisi", move)
                 break
         return move
 
@@ -63,24 +58,20 @@ class StraightAttack(Strategy):
 class AggloStrategy(Strategy):
 
     def play(self, state, time_message_received):
-        times = [0, 0, 0]
         heuristic = HeuristicAgglo()
         state_copy = state.copy_state()
         always_split = False
-        _, moves, reduce_depth, times = alphabeta(state_copy, 3, -inf, inf, True, heuristic,
-                                                  time_message_received, times, always_split)
-
+        _, moves, reduce_depth = alphabeta(state_copy, 3, -inf, inf, True, heuristic, time_message_received,
+                                           always_split)
         return moves
 
 
 class SplitStrategy(Strategy):
 
     def play(self, state, time_message_received):
-        times = [0, 0, 0]
         heuristic = HeuristicAgglo()
         state_copy = state.copy_state()
         always_split = False
-        _, moves, reduce_depth, times = alphabeta(state_copy, 3, -inf, inf, True, heuristic,
-                                                  time_message_received, times, always_split)
-
+        _, moves, reduce_depth = alphabeta(state_copy, 3, -inf, inf, True, heuristic,
+                                           time_message_received, always_split)
         return moves

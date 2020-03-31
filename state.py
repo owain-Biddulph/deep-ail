@@ -22,7 +22,7 @@ class Species:
     def tile_coordinates(self) -> List[Tuple[int, int]]:
         return list(self.tiles.keys())
 
-    def tile_contents(self): #-> List[ [int, int, int]]:
+    def tile_contents(self):
         """Returns a list of the species tile coordinates and contents ordered incrementally by unit count"""
         return sorted(list(map(lambda x: (x[0][0], x[0][1], x[1]), self.tiles.items())), key=lambda x: x[-1])
 
@@ -51,7 +51,7 @@ class State:
     def __init__(self, set_message: Tuple[str, Tuple[int, int]], set_species: bool = True) -> None:
         self._nb_rows: int = set_message[1][0]
         self._nb_columns: int = set_message[1][1]
-        self._board: np.ndarray = np.zeros((self.nb_columns, self.nb_rows, 2), dtype=int)
+        self.board: np.ndarray = np.zeros((self.nb_columns, self.nb_rows, 2), dtype=int)
         self._house_list: List[Tuple[int, int]] = []
         self._starting_square = None
         self.our_species: Optional[Species] = None
@@ -71,26 +71,22 @@ class State:
     def nb_columns(self) -> int:
         return self._nb_columns
 
-    @property
-    def board(self) -> np.ndarray:
-        return self._board
-
     def update_board(self, update: Iterable[int]):
         x, y = update[:2]
         if update[2] != 0:
-            self._board[x, y, 0] = 1
-            self._board[x, y, 1] = update[2]
+            self.board[x, y, 0] = 1
+            self.board[x, y, 1] = update[2]
         elif update[3] != 0:
-            self._board[x, y, 0] = 2
-            self._board[x, y, 1] = update[3]
+            self.board[x, y, 0] = 2
+            self.board[x, y, 1] = update[3]
         elif update[4] != 0:
-            self._board[x, y, 0] = 3
-            self._board[x, y, 1] = update[4]
+            self.board[x, y, 0] = 3
+            self.board[x, y, 1] = update[4]
         else:
-            self._board[x, y, :] = 0
+            self.board[x, y, :] = 0
 
     def display_board(self):
-        print(np.transpose(self._board, axes=(0, 2, 1)))
+        print(np.transpose(self.board, axes=(0, 2, 1)))
 
     def update(self, message) -> None:
         """
@@ -166,14 +162,14 @@ class State:
                 survivors = np.random.binomial(n, win_probability)
 
                 # We are defending
-                if self._board[x, y, 0] == self.our_species.type:
+                if self.board[x, y, 0] == self.our_species.type:
                     self.our_species.remove_tile((x, y))
                     species = self.enemy_species.type
                     self.enemy_species.add_units((x, y), survivors)
                     self.probability = self.probability * win_probability
 
                 # We are attacking the enemy
-                elif self._board[x, y, 0] == self.enemy_species.type:
+                elif self.board[x, y, 0] == self.enemy_species.type:
                     self.enemy_species.remove_tile((x, y))
                     self.our_species.add_units((x, y), survivors)
                     species = self.our_species.type
@@ -194,16 +190,16 @@ class State:
             # If the outcome has a probability below this value (0.8), we consider the fight is lost
             else:
                 survivors = np.random.binomial(
-                    self._board[x, y, 1], 1-win_probability)
+                    self.board[x, y, 1], 1 - win_probability)
 
                 # We are defending
-                if self._board[x, y, 0] == self.our_species.type:
-                    self.our_species.remove_units((x, y), self._board[x, y, 1] - survivors)
+                if self.board[x, y, 0] == self.our_species.type:
+                    self.our_species.remove_units((x, y), self.board[x, y, 1] - survivors)
                     species = self.our_species.type
                     self.probability = self.probability * win_probability  # Bit of an odd one
 
                 # We are attacking the enemy
-                elif self._board[x, y, 0] == self.enemy_species.type:
+                elif self.board[x, y, 0] == self.enemy_species.type:
                     self.enemy_species.remove_units(
                         (x, y), self.board[x, y, 1] - survivors)
                     species = self.enemy_species.type
@@ -221,7 +217,7 @@ class State:
 
     def __remove_unit(self, n, x, y):
         # Remove n units in (x,y) position.
-        species = self._board[x, y, 0]
+        species = self.board[x, y, 0]
         if species == 1:
             self.human_species.remove_units((x, y), n)
         elif species == self.our_species.type:
@@ -249,7 +245,7 @@ class State:
 
         copy._nb_rows = self._nb_rows
         copy._nb_columns = self._nb_columns
-        copy._board = np.copy(self._board)
+        copy.board = np.copy(self.board)
         copy._house_list = np.copy(self._house_list)
         copy._starting_square = np.copy(self._starting_square)
         copy.our_species = Species(
