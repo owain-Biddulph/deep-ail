@@ -1,6 +1,6 @@
 # deep-ail
-IA project Centrale
-par Barrau Stepan, Biddulph Owain, Delattre Julien, Goualard François, Topuz Nicolas
+Projet IA - Centrale
+*par Barrau Stepan, Biddulph Owain, Delattre Julien, Goualard François, Topuz Nicolas*
 
 ## Contexte et objectif du projet 
 
@@ -52,6 +52,5 @@ Cas particulier enfin : la gestion du split. En effet, le fait de savoir quand n
 
 Nous avons donc conçu un système capable de se connecter au serveur et de jouer d'une manière qui semble cohérente et que nous sommes impatients de suivre au cours du tournoi. 
 A ce stade nous observons quelques limites :
-- Des difficultés à expliquer certains comportements a priori lorsqu'on attend des profondeurs plus élevées.
-- Le cache de l'heuristique se remplit vite de sorte que pour qu'il reste efficace tout au long de la partie il serait intéressant de réfléchir à un processus pour le vider.
-- La profondeur permet de gagner en performance mais augmente nettement le temps de calcul. Par conséquent, il serait intéressant de mettre en place des mécanismes pour adapter la profondeur de l'alphabeta en fonction du temps que l'on prend par rapport au temps imparti.
+- Des difficultés à expliquer certains comportements a priori lorsqu'on atteint des profondeurs plus élevées.
+- La profondeur permet de gagner en performance mais augmente nettement le temps de calcul. Par conséquent, nous avons mis en place des mécanismes pour adapter la profondeur de l'alphabeta en fonction du temps que l'on prend par rapport au temps imparti. Seulement, cette profondeur pourrait être remontée par la suite.
