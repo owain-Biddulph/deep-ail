@@ -64,13 +64,12 @@ class AggloStrategy(Strategy):
 
     def play(self, state, time_message_received):
         times = [0, 0, 0]
-        heuristic = HeuristicAgglo
+        heuristic = HeuristicAgglo()
         state_copy = state.copy_state()
         always_split = False
         _, moves, reduce_depth, times = alphabeta(state_copy, 3, -inf, inf, True, heuristic,
                                                   time_message_received, times, always_split)
-        if reduce_depth:
-            self.alphabeta_depth -= 1
+
         return moves
 
 
@@ -78,11 +77,10 @@ class SplitStrategy(Strategy):
 
     def play(self, state, time_message_received):
         times = [0, 0, 0]
-        heuristic = HeuristicSplit()
+        heuristic = HeuristicAgglo()
         state_copy = state.copy_state()
-        always_split = True
-        _, moves, reduce_depth, times = alphabeta(state_copy, 3 , -inf, inf, True, heuristic,
+        always_split = False
+        _, moves, reduce_depth, times = alphabeta(state_copy, 3, -inf, inf, True, heuristic,
                                                   time_message_received, times, always_split)
-        if reduce_depth:
-            self.alphabeta_depth -= 1
+
         return moves
